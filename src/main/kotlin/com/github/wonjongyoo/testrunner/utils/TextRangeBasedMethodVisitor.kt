@@ -8,18 +8,19 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 
 // 파일 내의 모든 PsiMethod(Java), KtNamedFunction(Kotlin) 을 찾는다.
 class TextRangeBasedMethodVisitor(private val textRanges: List<TextRange>) : PsiRecursiveElementWalkingVisitor() {
-    val psiMethods: MutableList<PsiMethod> = mutableListOf()
-    val ktNamedFunctions: MutableList<KtNamedFunction> = mutableListOf()
+    val methodWrappers: MutableSet<MethodWrapper> = mutableSetOf()
     override fun visitElement(element: PsiElement) {
         if (element is PsiMethod && textRanges.any { element.textRange.contains(it) }) {
-            if (!psiMethods.contains(element)) {
-                psiMethods.add(element)
+            val wrapper = element.toWrapper()
+            if (!methodWrappers.contains(wrapper)) {
+                methodWrappers.add(wrapper)
             }
         }
 
         if (element is KtNamedFunction && textRanges.any { element.textRange.contains(it) }) {
-            if (!ktNamedFunctions.contains(element)) {
-                ktNamedFunctions.add(element)
+            val wrapper = element.toWrapper()
+            if (!methodWrappers.contains(wrapper)) {
+                methodWrappers.add(wrapper)
             }
         }
 
