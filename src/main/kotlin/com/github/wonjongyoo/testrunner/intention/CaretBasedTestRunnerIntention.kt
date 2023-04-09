@@ -50,7 +50,7 @@ class CaretBasedTestRunnerIntention: IntentionAction {
         val searcher = TestMethodSearcher(project)
         val testMethods = searcher.search(methodWrapper)
 
-        JunitTestRunner.runTestMethod(project, testMethods, "Run all affected tests based on caret method")
+        JunitTestRunner.runTestMethods(project, testMethods, "Run all affected tests based on caret method")
     }
 
     private fun getElementAtCurrentCaretOffset(editor: Editor, file: PsiFile): PsiElement? {

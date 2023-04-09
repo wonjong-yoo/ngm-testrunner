@@ -8,42 +8,12 @@ import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.junit.JUnitConfigurationType
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
-import com.intellij.execution.runners.ExecutionUtil
 import com.intellij.execution.testframework.TestSearchScope
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 
 class JunitTestRunner {
     companion object {
-        fun runTestMethod(
-            project: Project,
-            testMethods: Set<MethodWrapper>,
-            junitRunMessage: String
-        ) {
-            val runManager = RunManager.getInstance(project)
-            val setting = runManager.createConfiguration(junitRunMessage, JUnitConfigurationType::class.java)
-
-            val runConfiguration = setting.configuration
-            if (runConfiguration is JUnitConfiguration) {
-                val jUnitConfiguration = runConfiguration
-
-                val firstTestMethod = testMethods.first().getElement()
-                val module = ModuleUtilCore.findModuleForPsiElement(firstTestMethod)
-                if (module != null) {
-                    jUnitConfiguration.setSearchScope(TestSearchScope.WHOLE_PROJECT)
-                    jUnitConfiguration.setModule(module)
-                }
-
-                val persistentData = jUnitConfiguration.persistentData
-                persistentData.TEST_OBJECT = JUnitConfiguration.TEST_PATTERN
-
-                persistentData.setPatterns(generateTestPattern(testMethods))
-
-                val executor = DefaultRunExecutor.getRunExecutorInstance()
-                ExecutionUtil.runConfiguration(setting, executor)
-            }
-        }
-
         fun runTestMethods(
             project: Project,
             testMethods: Set<MethodWrapper>,
@@ -109,7 +79,7 @@ class JunitTestRunner {
                     .create(DefaultRunExecutor.getRunExecutorInstance(), setting)
                     .build()
 
-                environment?.let {
+                environment.let {
                     ExecutionManager.getInstance(project).restartRunProfile(it)
                 }
             }
