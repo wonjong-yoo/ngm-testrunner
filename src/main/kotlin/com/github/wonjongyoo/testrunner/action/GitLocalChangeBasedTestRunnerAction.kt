@@ -1,21 +1,17 @@
-package com.github.wonjongyoo.testrunner.intention
+package com.github.wonjongyoo.testrunner.action
 
 import com.github.wonjongyoo.testrunner.runner.JunitTestRunner
+import com.github.wonjongyoo.testrunner.utils.ReferenceSearchUtils
+import com.github.wonjongyoo.testrunner.utils.TextRangeBasedMethodVisitor
 import com.intellij.codeInsight.actions.VcsFacade
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vcs.changes.ChangeListManager
-import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import com.intellij.psi.PsiMethod
-import com.intellij.psi.PsiRecursiveElementWalkingVisitor
-import com.intellij.psi.PsiReference
 import com.intellij.psi.PsiReferenceExpression
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
 import org.jetbrains.kotlin.psi.KtClass
@@ -40,14 +36,13 @@ class GitLocalChangeBasedTestRunnerAction: AnAction() {
                 val psiFile: PsiFile = psiManager.findFile(virtualFile) ?: return@map listOf<PsiMethod>()
                 val allChangedRanges = VcsFacade.getInstance().getChangedRangesInfo(psiFile)?.allChangedRanges ?: return@map listOf<PsiMethod>()
 
-                val visitor = PsiMethodVisitor(allChangedRanges)
+                val visitor = TextRangeBasedMethodVisitor(allChangedRanges)
                 psiFile.accept(visitor)
 
                 visitor.psiMethods
             }
             .flatten()
             .map { targetMethods ->
-
                 val target: Map<KtClass, List<KtNamedFunction>> = findTestMethodsRecursively(project, targetMethods, visitedPsiMethods)
 
                 println("target : $target")
@@ -70,7 +65,7 @@ class GitLocalChangeBasedTestRunnerAction: AnAction() {
             return mapOf()
         }
 
-        val references = MethodReferenceFinder.findReferences(psiMethod, project)
+        val references = ReferenceSearchUtils.searchReferences(psiMethod, project)
 
         // Resovle refereces
         val testMethods: List<KtNamedFunction> = references
@@ -93,29 +88,6 @@ class GitLocalChangeBasedTestRunnerAction: AnAction() {
             mapOf(testClass to testMethods) + referenceMethods.flatMap { findTestMethodsRecursively(project, it, visitedPsiMethods).entries }.associate { it.key to it.value }
         } else {
             mapOf(testClass to testMethods)
-        }
-    }
-
-    private class MethodReferenceFinder {
-        companion object {
-            fun findReferences(psiMethod: PsiMethod, project: Project): Collection<PsiReference> {
-                val searchScope: GlobalSearchScope = GlobalSearchScope.projectScope(project)
-                return ReferencesSearch.search(psiMethod, searchScope).findAll()
-            }
-        }
-    }
-
-    private class PsiMethodVisitor(private val textRanges: List<TextRange>) : PsiRecursiveElementWalkingVisitor() {
-        val psiMethods = mutableListOf<PsiMethod>()
-
-        override fun visitElement(element: PsiElement) {
-            if (element is PsiMethod && textRanges.any { element.textRange.contains(it) }) {
-                if (!psiMethods.contains(element)) {
-                    psiMethods.add(element)
-                }
-            }
-
-            super.visitElement(element)
         }
     }
 }

@@ -13,6 +13,9 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow factoryClass="com.github.wonjongyoo.testrunner.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <intentionAction>
+            <className>com.github.wonjongyoo.testrunner.intention.CaretBasedTestRunnerIntention</className>
+        </intentionAction>
     </extensions>
 
     <applicationListeners>
@@ -25,8 +28,8 @@
                 popup="true">
             <add-to-group group-id="RunMenu" anchor="last"/>
             <action
-                    class="com.github.wonjongyoo.testrunner.intention.GitLocalChangeBasedTestRunnerAction"
-                    id="com.github.wonjongyoo.testrunner.intention.GitLocalChangeBasedTestRunnerAction"
+                    class="com.github.wonjongyoo.testrunner.action.GitLocalChangeBasedTestRunnerAction"
+                    id="com.github.wonjongyoo.testrunner.action.GitLocalChangeBasedTestRunnerAction"
                     text="Run All Affected Tests Based on Git Local Changes"
                     description="Enable auto expression converter">
             </action>
