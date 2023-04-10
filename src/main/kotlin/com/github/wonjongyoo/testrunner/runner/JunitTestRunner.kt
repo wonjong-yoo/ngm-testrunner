@@ -1,6 +1,7 @@
 package com.github.wonjongyoo.testrunner.runner
 
 import com.github.wonjongyoo.testrunner.utils.MethodWrapper
+import com.github.wonjongyoo.testrunner.utils.NotificationUtils
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.RunManager
 import com.intellij.execution.RunnerAndConfigurationSettings
@@ -19,6 +20,10 @@ class JunitTestRunner {
             testMethods: Set<MethodWrapper>,
             junitRunMessage: String
         ) {
+            if (testMethods.isEmpty()) {
+                NotificationUtils.show("No tests to run.")
+            }
+
             val runManager = RunManager.getInstance(project)
 
             val testMethodsByModule = testMethods.map {
