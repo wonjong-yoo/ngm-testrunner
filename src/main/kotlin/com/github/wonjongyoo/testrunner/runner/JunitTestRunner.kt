@@ -21,7 +21,7 @@ class JunitTestRunner {
         ) {
             val runManager = RunManager.getInstance(project)
 
-            val a = testMethods.map {
+            val testMethodsByModule = testMethods.map {
                 val module = ModuleUtilCore.findModuleForPsiElement(it.getElement())
 
                 module to it
@@ -29,8 +29,13 @@ class JunitTestRunner {
                 .groupBy({ it.first }, { it.second })
                 .mapValues { (_, value) -> LinkedHashSet(value) }
 
-            val settings = a.map { (module, target) ->
-                val newMessage = "[${module?.name}] $junitRunMessage"
+            val settings = testMethodsByModule.map { (module, target) ->
+                val newMessage = if (testMethodsByModule.size == 1) {
+                    junitRunMessage
+                } else {
+                    "[${module?.name}] $junitRunMessage"
+                }
+
                 val setting = runManager.createConfiguration(newMessage, JUnitConfigurationType::class.java)
                 println("module : ${module?.name} -> tests : ${target.map { it.getMethodName() }}")
                 val runConfiguration = setting.configuration

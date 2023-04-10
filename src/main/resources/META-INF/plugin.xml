@@ -12,14 +12,15 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.wonjongyoo.testrunner.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
         <intentionAction>
             <className>com.github.wonjongyoo.testrunner.intention.CaretBasedTestRunnerIntention</className>
         </intentionAction>
+        <codeInsight.lineMarkerProvider implementationClass="com.github.wonjongyoo.testrunner.marker.MethodJunitTestRunnerLineMarkerProvider"
+                                        language="JAVA">
+        </codeInsight.lineMarkerProvider>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.wonjongyoo.testrunner.listeners.MyFrameStateListener" topic="com.intellij.ide.FrameStateListener"/>
     </applicationListeners>
     <actions>
         <group

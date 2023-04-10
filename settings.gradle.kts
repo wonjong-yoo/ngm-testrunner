@@ -1,1 +1,1 @@
-rootProject.name = "test-runner"
+rootProject.name = "ninja-guru-magician"
