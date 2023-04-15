@@ -1,9 +1,10 @@
 package com.github.wonjongyoo.testrunner.intention
 
-import com.github.wonjongyoo.testrunner.runner.JunitTestRunner
+import com.github.wonjongyoo.testrunner.node.BaseNode
 import com.github.wonjongyoo.testrunner.utils.MethodWrapper
 import com.github.wonjongyoo.testrunner.utils.TestMethodSearcher
 import com.github.wonjongyoo.testrunner.utils.toWrapper
+import com.github.wonjongyoo.testrunner.window.TreeModelHolder
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.editor.Editor
@@ -14,6 +15,7 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import javax.swing.tree.DefaultMutableTreeNode
 
 class CaretBasedTestRunnerIntention: IntentionAction {
     override fun startInWriteAction(): Boolean {
@@ -22,7 +24,7 @@ class CaretBasedTestRunnerIntention: IntentionAction {
 
     override fun getText(): String = "Run all affected test on this method"
 
-    override fun getFamilyName(): String = "Ninja Guru Magician"
+    override fun getFamilyName(): String = "Ninja guru magician"
 
     override fun isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean {
         val elementAtCurrentOffset = getElementAtCurrentCaretOffset(editor, file) ?: return false
@@ -48,9 +50,28 @@ class CaretBasedTestRunnerIntention: IntentionAction {
         }
 
         val searcher = TestMethodSearcher(project)
-        val testMethods = searcher.search(methodWrapper)
+        val node = searcher.search2(methodWrapper)
 
-        JunitTestRunner.runTestMethods(project, testMethods, "Run all affected tests based on caret method")
+        updateTree(project, node!!)
+
+        node.printRecursively()
+    }
+
+    private fun updateTree(project: Project, baseNode: BaseNode) {
+        val treeModelHolder = project.getService(TreeModelHolder::class.java)
+
+        treeModelHolder?.treeModel?.setRoot(makeTree(baseNode))
+        treeModelHolder?.treeModel?.reload()
+    }
+
+    private fun makeTree(baseNode: BaseNode): DefaultMutableTreeNode {
+        val node = DefaultMutableTreeNode(baseNode)
+
+        for (child in baseNode.children) {
+            node.add(makeTree(child))
+        }
+
+        return node
     }
 
     private fun getElementAtCurrentCaretOffset(editor: Editor, file: PsiFile): PsiElement? {

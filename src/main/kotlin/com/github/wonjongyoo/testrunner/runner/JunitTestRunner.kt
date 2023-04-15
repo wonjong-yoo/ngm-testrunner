@@ -1,5 +1,6 @@
 package com.github.wonjongyoo.testrunner.runner
 
+import com.github.wonjongyoo.testrunner.node.BaseNode
 import com.github.wonjongyoo.testrunner.utils.MethodWrapper
 import com.github.wonjongyoo.testrunner.utils.NotificationUtils
 import com.intellij.execution.ExecutionManager
@@ -66,6 +67,18 @@ class JunitTestRunner {
             }
 
             runModuleTests(settings, project)
+        }
+
+        fun runTestMethods(
+            project: Project,
+            node: BaseNode,
+            junitRunMessage: String
+        ) {
+            runTestMethods(
+                project,
+                node.findAllTestMethodsForAllChild(),
+                junitRunMessage
+            )
         }
 
         private fun generateTestPattern(

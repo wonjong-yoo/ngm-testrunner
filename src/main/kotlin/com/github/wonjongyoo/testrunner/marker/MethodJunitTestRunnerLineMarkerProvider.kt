@@ -28,7 +28,7 @@ class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
                     val methodWrapper: MethodWrapper = elementAtCurrentOffset.toWrapper()
 
                     val searcher = TestMethodSearcher(elt.project)
-                    val testMethods = searcher.search(methodWrapper)
+                    val testMethods = searcher.searchByMethodWrapper(methodWrapper)
 
                     JunitTestRunner.runTestMethods(elt.project, testMethods, "Run all affected tests in ${element.text}")
                 }

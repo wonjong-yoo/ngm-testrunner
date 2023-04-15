@@ -38,7 +38,7 @@ class GitLocalChangeBasedTestRunnerAction: AnAction() {
             .map { methodWrapper ->
                 val searcher = TestMethodSearcher(project)
 
-                val testMethods = searcher.search(methodWrapper)
+                val testMethods = searcher.searchByMethodWrapper(methodWrapper)
                 println("target : ${testMethods.map { it.getMethodName() }}")
 
                 testMethods

@@ -18,6 +18,9 @@
         <codeInsight.lineMarkerProvider implementationClass="com.github.wonjongyoo.testrunner.marker.MethodJunitTestRunnerLineMarkerProvider"
                                         language="JAVA">
         </codeInsight.lineMarkerProvider>
+        <toolWindow factoryClass="com.github.wonjongyoo.testrunner.window.MyToolWindowFactory" id="myToolWindow"/>
+        <projectService serviceImplementation="com.github.wonjongyoo.testrunner.window.TreeModelHolder"/>
+        <testStatusListener implementation="com.github.wonjongyoo.testrunner.runner.MyTestRunListener"/>
     </extensions>
 
     <applicationListeners>

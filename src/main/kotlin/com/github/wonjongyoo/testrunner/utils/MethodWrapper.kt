@@ -19,6 +19,8 @@ interface MethodWrapper {
 
     fun getContainingClassFqName(): String
 
+    fun getContainingClassName(): String
+
     fun getMethodName(): String
 }
 
@@ -41,6 +43,11 @@ class KtNamedFunctionWrapper(val ktNamedFunction: KtNamedFunction) : MethodWrapp
     override fun getContainingClassFqName(): String {
         val ktClass = this.ktNamedFunction.getParentOfType<KtClass>(true) ?: throw RuntimeException("There is no containing class")
         return ktClass.fqName.toString()
+    }
+
+    override fun getContainingClassName(): String {
+        val ktClass = this.ktNamedFunction.getParentOfType<KtClass>(true) ?: throw RuntimeException("There is no containing class")
+        return ktClass.name ?: ""
     }
 
     override fun getMethodName(): String {
@@ -76,6 +83,11 @@ class PsiMethodWrapper(val psiMethod: PsiMethod) : MethodWrapper {
     override fun getContainingClassFqName(): String {
         val psiClass = psiMethod.containingClass ?: throw RuntimeException("There is no containing class")
         return psiClass.qualifiedName ?: return ""
+    }
+
+    override fun getContainingClassName(): String {
+        val psiClass = psiMethod.containingClass ?: throw RuntimeException("There is no containing class")
+        return psiClass.name ?: return ""
     }
 
     override fun getMethodName(): String {
