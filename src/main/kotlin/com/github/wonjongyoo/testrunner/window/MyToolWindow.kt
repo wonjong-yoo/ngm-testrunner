@@ -1,6 +1,7 @@
 package com.github.wonjongyoo.testrunner.window
 
 import com.github.wonjongyoo.testrunner.node.BaseNode
+import com.github.wonjongyoo.testrunner.node.visitor.FindingTestMethodVisitor
 import com.github.wonjongyoo.testrunner.runner.JunitTestRunner
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.ui.components.JBScrollPane
@@ -57,7 +58,13 @@ class MyToolWindow(
             }
 
             val project = selectedNodes.first().project
-            val targetSet = selectedNodes.map { baseNode -> (baseNode as BaseNode).findAllTestMethodsForAllChild() }
+
+            val visitor = FindingTestMethodVisitor()
+
+            val targetSet = selectedNodes.map { baseNode ->
+                (baseNode as BaseNode).accept(visitor)
+                visitor.getTestMethodWrappers()
+            }
                 .flatten()
                 .toSet()
 

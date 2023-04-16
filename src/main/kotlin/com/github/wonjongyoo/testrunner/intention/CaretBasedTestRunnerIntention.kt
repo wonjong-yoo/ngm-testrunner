@@ -1,8 +1,8 @@
 package com.github.wonjongyoo.testrunner.intention
 
 import com.github.wonjongyoo.testrunner.node.BaseNode
+import com.github.wonjongyoo.testrunner.utils.MethodInvocationFinder
 import com.github.wonjongyoo.testrunner.utils.MethodWrapper
-import com.github.wonjongyoo.testrunner.utils.TestMethodSearcher
 import com.github.wonjongyoo.testrunner.utils.toWrapper
 import com.github.wonjongyoo.testrunner.window.TreeModelHolder
 import com.intellij.codeInsight.intention.IntentionAction
@@ -49,12 +49,12 @@ class CaretBasedTestRunnerIntention: IntentionAction {
             else -> return
         }
 
-        val searcher = TestMethodSearcher(project)
-        val node = searcher.search2(methodWrapper)
+        val searcher = MethodInvocationFinder(project)
+        val node = searcher.buildInvocationTree(methodWrapper)
 
         updateTree(project, node!!)
 
-        node.printRecursively()
+        node.printNodeRecursively()
     }
 
     private fun updateTree(project: Project, baseNode: BaseNode) {

@@ -1,6 +1,7 @@
 package com.github.wonjongyoo.testrunner.runner
 
 import com.github.wonjongyoo.testrunner.node.BaseNode
+import com.github.wonjongyoo.testrunner.node.visitor.ChangingTestMethodIconVisitor
 import com.github.wonjongyoo.testrunner.utils.TestRunResult
 import com.github.wonjongyoo.testrunner.window.TreeModelHolder
 import com.intellij.execution.testframework.AbstractTestProxy
@@ -41,7 +42,10 @@ class MyTestRunListener : TestStatusListener() {
         val treeModelHolder = project?.getService(TreeModelHolder::class.java) ?: return
 
         val rootNode = ((treeModelHolder.treeModel.root as DefaultMutableTreeNode).userObject) as BaseNode
-        rootNode.setIconRecursively(testRunResults)
+
+        val visitor = ChangingTestMethodIconVisitor(testRunResults)
+
+        rootNode.accept(visitor)
         treeModelHolder.treeModel.reload()
     }
 }

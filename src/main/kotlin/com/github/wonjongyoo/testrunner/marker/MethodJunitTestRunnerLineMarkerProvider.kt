@@ -1,8 +1,8 @@
 package com.github.wonjongyoo.testrunner.marker
 
 import com.github.wonjongyoo.testrunner.runner.JunitTestRunner
+import com.github.wonjongyoo.testrunner.utils.MethodInvocationFinder
 import com.github.wonjongyoo.testrunner.utils.MethodWrapper
-import com.github.wonjongyoo.testrunner.utils.TestMethodSearcher
 import com.github.wonjongyoo.testrunner.utils.toWrapper
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo
@@ -27,7 +27,7 @@ class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
 
                     val methodWrapper: MethodWrapper = elementAtCurrentOffset.toWrapper()
 
-                    val searcher = TestMethodSearcher(elt.project)
+                    val searcher = MethodInvocationFinder(elt.project)
                     val testMethods = searcher.searchByMethodWrapper(methodWrapper)
 
                     JunitTestRunner.runTestMethods(elt.project, testMethods, "Run all affected tests in ${element.text}")

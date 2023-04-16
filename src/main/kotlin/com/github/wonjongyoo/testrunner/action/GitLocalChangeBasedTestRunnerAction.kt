@@ -1,7 +1,7 @@
 package com.github.wonjongyoo.testrunner.action
 
 import com.github.wonjongyoo.testrunner.runner.JunitTestRunner
-import com.github.wonjongyoo.testrunner.utils.TestMethodSearcher
+import com.github.wonjongyoo.testrunner.utils.MethodInvocationFinder
 import com.github.wonjongyoo.testrunner.utils.TextRangeBasedMethodVisitor
 import com.intellij.codeInsight.actions.VcsFacade
 import com.intellij.openapi.actionSystem.AnAction
@@ -36,7 +36,7 @@ class GitLocalChangeBasedTestRunnerAction: AnAction() {
             }
             .flatten()
             .map { methodWrapper ->
-                val searcher = TestMethodSearcher(project)
+                val searcher = MethodInvocationFinder(project)
 
                 val testMethods = searcher.searchByMethodWrapper(methodWrapper)
                 println("target : ${testMethods.map { it.getMethodName() }}")

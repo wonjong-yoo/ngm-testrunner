@@ -1,10 +1,11 @@
 package com.github.wonjongyoo.testrunner.utils
 
 import com.github.wonjongyoo.testrunner.node.BaseNode
-import com.github.wonjongyoo.testrunner.node.BaseNodeFactory
+import com.github.wonjongyoo.testrunner.node.ClassMethodNode
+import com.github.wonjongyoo.testrunner.node.TestMethodNode
 import com.intellij.openapi.project.Project
 
-class TestMethodSearcher(
+class MethodInvocationFinder(
     val project: Project
 ) {
     private val visited: MutableSet<MethodWrapper> = mutableSetOf()
@@ -37,7 +38,7 @@ class TestMethodSearcher(
         return testMethods + testMethodsFromRecursivelySearched
     }
 
-    fun search2(
+    fun buildInvocationTree(
         methodWrapper: MethodWrapper,
     ): BaseNode? {
         if (visited.contains(methodWrapper)) {
@@ -58,19 +59,20 @@ class TestMethodSearcher(
             it.isJunitTestMethod()
         }.toSet()
 
-        val newNode = BaseNodeFactory.createNode(methodWrapper)
+        // 1. 기준 메서드에 대한 노드
+        val newNode = ClassMethodNode(methodWrapper)
+        // 2. 기준 메서드를 호출하는 테스트 메서드를 자식 노드로 먼저 추가
         newNode.addChildren(
             testMethods.map {
-                BaseNodeFactory.createNode(it)
+                TestMethodNode(it)
             }
         )
 
-        // 그 외 메서드는 재귀적으로 테스트 메서드를 탐색
+        // 3. 기준 메서드를 호출하는 테스트 메서드를 제외하고 나머지 메서드는 재귀 호출하여 나식 노드에 추가
         val childNodes = psiFunctionWrappers.filter { !it.isJunitTestMethod() }
             .mapNotNull {
-                search2(it)
+                buildInvocationTree(it)
             }
-
         newNode.addChildren(childNodes)
 
         return if (testMethods.isEmpty() && childNodes.isEmpty()) null else newNode

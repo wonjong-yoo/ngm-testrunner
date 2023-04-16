@@ -3,7 +3,10 @@ package com.github.wonjongyoo.testrunner.node
 import com.github.wonjongyoo.testrunner.utils.MethodWrapper
 import com.intellij.icons.AllIcons
 
-class MethodNode(methodWrapper: MethodWrapper) : BaseNode(methodWrapper) {
+/**
+ * 테스트 메서드가 아닌 일반적인 클래스에 존재하는 메서드
+ */
+class ClassMethodNode(methodWrapper: MethodWrapper) : BaseNode(methodWrapper) {
     init {
         this.icon = AllIcons.Nodes.Method
     }
