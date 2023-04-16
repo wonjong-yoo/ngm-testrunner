@@ -1,9 +1,11 @@
 package com.github.wonjongyoo.testrunner.marker
 
+import com.github.wonjongyoo.testrunner.node.visitor.FindingTestMethodVisitor
 import com.github.wonjongyoo.testrunner.runner.JunitTestRunner
 import com.github.wonjongyoo.testrunner.utils.MethodInvocationFinder
 import com.github.wonjongyoo.testrunner.utils.MethodWrapper
 import com.github.wonjongyoo.testrunner.utils.toWrapper
+import com.github.wonjongyoo.testrunner.window.TreeModelHolder
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider
@@ -27,10 +29,21 @@ class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
 
                     val methodWrapper: MethodWrapper = elementAtCurrentOffset.toWrapper()
 
-                    val searcher = MethodInvocationFinder(elt.project)
-                    val testMethods = searcher.searchByMethodWrapper(methodWrapper)
+                    val finder = MethodInvocationFinder(elt.project)
+                    val rootBaseNode = finder.buildInvocationTree(methodWrapper)
+                    if (rootBaseNode == null) {
+                        println("invocation tree is null")
+                        return@GutterIconNavigationHandler
+                    }
 
-                    JunitTestRunner.runTestMethods(elt.project, testMethods, "Run all affected tests in ${element.text}")
+                    val visitor = FindingTestMethodVisitor()
+                    rootBaseNode.accept(visitor)
+
+                    val treeModelHolder = elt.project.getService(TreeModelHolder::class.java)
+                    treeModelHolder.treeModel.setRoot(rootBaseNode.toTreeNode())
+                    treeModelHolder.treeModel.reload()
+
+                    JunitTestRunner.runTestMethods(elt.project, visitor.getTestMethodWrappers(), "Run all affected tests in ${element.text}")
                 }
 
                 val marker = NavigationGutterIconBuilder.create(TestState.Run)

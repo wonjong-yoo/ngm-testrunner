@@ -15,7 +15,6 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtNamedFunction
-import javax.swing.tree.DefaultMutableTreeNode
 
 class CaretBasedTestRunnerIntention: IntentionAction {
     override fun startInWriteAction(): Boolean {
@@ -60,18 +59,8 @@ class CaretBasedTestRunnerIntention: IntentionAction {
     private fun updateTree(project: Project, baseNode: BaseNode) {
         val treeModelHolder = project.getService(TreeModelHolder::class.java)
 
-        treeModelHolder?.treeModel?.setRoot(makeTree(baseNode))
+        treeModelHolder?.treeModel?.setRoot(baseNode.toTreeNode())
         treeModelHolder?.treeModel?.reload()
-    }
-
-    private fun makeTree(baseNode: BaseNode): DefaultMutableTreeNode {
-        val node = DefaultMutableTreeNode(baseNode)
-
-        for (child in baseNode.children) {
-            node.add(makeTree(child))
-        }
-
-        return node
     }
 
     private fun getElementAtCurrentCaretOffset(editor: Editor, file: PsiFile): PsiElement? {

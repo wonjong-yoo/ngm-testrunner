@@ -3,6 +3,7 @@ package com.github.wonjongyoo.testrunner.node
 import com.github.wonjongyoo.testrunner.node.visitor.NodeRecursiveWalkingVisitor
 import com.github.wonjongyoo.testrunner.utils.MethodWrapper
 import com.intellij.ui.treeStructure.SimpleNode
+import javax.swing.tree.DefaultMutableTreeNode
 
 abstract class BaseNode(
     val methodWrapper: MethodWrapper
@@ -33,5 +34,15 @@ abstract class BaseNode(
         children.forEach {
             it.printNodeRecursively(tab + 1)
         }
+    }
+
+    fun toTreeNode(): DefaultMutableTreeNode {
+        val node = DefaultMutableTreeNode(this)
+
+        for (child in this.children) {
+            node.add(child.toTreeNode())
+        }
+
+        return node
     }
 }
