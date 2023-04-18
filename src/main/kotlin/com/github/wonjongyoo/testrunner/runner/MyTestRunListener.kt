@@ -40,12 +40,19 @@ class MyTestRunListener : TestStatusListener() {
             }.toList()
 
         val treeModelHolder = project?.getService(TreeModelHolder::class.java) ?: return
+        val defaultMutableTreeNode = treeModelHolder.treeModel.root as DefaultMutableTreeNode
+        val targetNodes = when (val userObject = defaultMutableTreeNode.userObject) {
+            is String -> defaultMutableTreeNode.children().asSequence().map { (it as DefaultMutableTreeNode).userObject as BaseNode }.toList()
+            is BaseNode -> listOf(userObject)
+            else -> null
+        }
 
-        val rootNode = ((treeModelHolder.treeModel.root as DefaultMutableTreeNode).userObject) as BaseNode
+        targetNodes?.forEach { targetNode ->
+            val visitor = ChangingTestMethodIconVisitor(testRunResults)
 
-        val visitor = ChangingTestMethodIconVisitor(testRunResults)
+            targetNode.accept(visitor)
+        }
 
-        rootNode.accept(visitor)
         treeModelHolder.treeModel.reload()
     }
 }

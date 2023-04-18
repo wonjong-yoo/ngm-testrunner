@@ -1,40 +1,61 @@
 package com.github.wonjongyoo.testrunner.window
 
 import com.github.wonjongyoo.testrunner.node.BaseNode
-import java.awt.BorderLayout
-import java.awt.Component
-import javax.swing.JLabel
-import javax.swing.JPanel
+import com.intellij.icons.AllIcons
+import com.intellij.ide.util.treeView.NodeRenderer
+import com.intellij.ui.JBColor
+import com.intellij.ui.SimpleTextAttributes
 import javax.swing.JTree
 import javax.swing.tree.DefaultMutableTreeNode
-import javax.swing.tree.TreeCellRenderer
 
-class CustomTreeCellRenderer : TreeCellRenderer {
-    private val panel = JPanel(BorderLayout())
-    private val titleLabel = JLabel()
+class CustomTreeCellRenderer : NodeRenderer() {
 
     init {
-        panel.add(titleLabel, BorderLayout.NORTH)
+        isOpaque = false
+        isIconOpaque = false
+        isTransparentIconBackground = true
     }
 
-    override fun getTreeCellRendererComponent(
-        tree: JTree?,
+    override fun customizeCellRenderer(
+        tree: JTree,
         value: Any?,
         selected: Boolean,
         expanded: Boolean,
         leaf: Boolean,
         row: Int,
         hasFocus: Boolean
-    ): Component {
+    ) {
         if (value is DefaultMutableTreeNode) {
-            val baseNode = value.userObject as? BaseNode
+            val userObject = value.userObject
+            if (userObject != null) {
+                when (userObject) {
+                    is BaseNode -> {
+                        append(userObject.name ?: "NULL", SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, null, JBColor.YELLOW))
+                        this.icon = userObject.icon
+                    }
+                    is String -> {
+                        append("ROOT", SimpleTextAttributes.ERROR_ATTRIBUTES)
+                        this.icon = AllIcons.Nodes.Folder
+                    }
+                }
 
-            if (baseNode != null) {
-                titleLabel.text = baseNode.name
-                titleLabel.icon = baseNode.icon
             }
+
+            // val userObject = value.userObject
+            // when (userObject) {
+            //     is BaseNode -> {
+            //         titleLabel.text = userObject.name
+            //         titleLabel.icon = userObject.icon
+            //     }
+            //     is String -> {
+            //         titleLabel.text = "Root"
+            //         titleLabel.icon = AllIcons.Nodes.Folder
+            //     }
+            // }
         }
 
-        return panel
+        // return panel
     }
+
+
 }

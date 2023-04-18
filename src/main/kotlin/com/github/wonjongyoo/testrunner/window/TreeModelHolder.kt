@@ -1,7 +1,8 @@
 package com.github.wonjongyoo.testrunner.window
 
+import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
 
 class TreeModelHolder {
-    lateinit var treeModel: DefaultTreeModel
+     var treeModel: DefaultTreeModel = DefaultTreeModel(DefaultMutableTreeNode())
 }

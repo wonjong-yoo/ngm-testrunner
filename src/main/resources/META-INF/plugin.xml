@@ -18,7 +18,11 @@
         <codeInsight.lineMarkerProvider implementationClass="com.github.wonjongyoo.testrunner.marker.MethodJunitTestRunnerLineMarkerProvider"
                                         language="JAVA">
         </codeInsight.lineMarkerProvider>
-        <toolWindow factoryClass="com.github.wonjongyoo.testrunner.window.MyToolWindowFactory" id="myToolWindow"/>
+        <toolWindow
+                factoryClass="com.github.wonjongyoo.testrunner.window.MyToolWindowFactory"
+                id="NGM TestRunner"
+                anchor="right"
+        />
         <projectService serviceImplementation="com.github.wonjongyoo.testrunner.window.TreeModelHolder"/>
         <testStatusListener implementation="com.github.wonjongyoo.testrunner.runner.MyTestRunListener"/>
     </extensions>
@@ -28,7 +32,7 @@
     <actions>
         <group
                 id="com.github.wonjongyoo.testrunner"
-                text="NinjaGuruMagician TestRunner"
+                text="NGM TestRunner"
                 popup="true">
             <add-to-group group-id="RunMenu" anchor="last"/>
             <action
