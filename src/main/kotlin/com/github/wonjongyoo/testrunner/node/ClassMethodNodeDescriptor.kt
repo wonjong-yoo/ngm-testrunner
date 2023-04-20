@@ -6,7 +6,7 @@ import com.intellij.icons.AllIcons
 /**
  * 테스트 메서드가 아닌 일반적인 클래스에 존재하는 메서드
  */
-class ClassMethodNode(methodWrapper: MethodWrapper) : BaseNode(methodWrapper) {
+class ClassMethodNodeDescriptor(methodWrapper: MethodWrapper) : BaseNodeDescriptor(methodWrapper) {
     init {
         this.icon = AllIcons.Nodes.Method
     }

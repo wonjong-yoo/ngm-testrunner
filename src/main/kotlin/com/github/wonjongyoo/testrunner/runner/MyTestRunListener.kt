@@ -1,6 +1,6 @@
 package com.github.wonjongyoo.testrunner.runner
 
-import com.github.wonjongyoo.testrunner.node.BaseNode
+import com.github.wonjongyoo.testrunner.node.BaseNodeDescriptor
 import com.github.wonjongyoo.testrunner.node.visitor.ChangingTestMethodIconVisitor
 import com.github.wonjongyoo.testrunner.utils.TestRunResult
 import com.github.wonjongyoo.testrunner.window.TreeModelHolder
@@ -42,8 +42,8 @@ class MyTestRunListener : TestStatusListener() {
         val treeModelHolder = project?.getService(TreeModelHolder::class.java) ?: return
         val defaultMutableTreeNode = treeModelHolder.treeModel.root as DefaultMutableTreeNode
         val targetNodes = when (val userObject = defaultMutableTreeNode.userObject) {
-            is String -> defaultMutableTreeNode.children().asSequence().map { (it as DefaultMutableTreeNode).userObject as BaseNode }.toList()
-            is BaseNode -> listOf(userObject)
+            is String -> defaultMutableTreeNode.children().asSequence().map { (it as DefaultMutableTreeNode).userObject as BaseNodeDescriptor }.toList()
+            is BaseNodeDescriptor -> listOf(userObject)
             else -> null
         }
 

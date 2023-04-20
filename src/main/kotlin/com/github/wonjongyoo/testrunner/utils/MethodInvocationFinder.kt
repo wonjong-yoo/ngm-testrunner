@@ -1,8 +1,8 @@
 package com.github.wonjongyoo.testrunner.utils
 
-import com.github.wonjongyoo.testrunner.node.BaseNode
-import com.github.wonjongyoo.testrunner.node.ClassMethodNode
-import com.github.wonjongyoo.testrunner.node.TestMethodNode
+import com.github.wonjongyoo.testrunner.node.BaseNodeDescriptor
+import com.github.wonjongyoo.testrunner.node.ClassMethodNodeDescriptor
+import com.github.wonjongyoo.testrunner.node.TestMethodNodeDescriptor
 import com.intellij.openapi.project.Project
 
 class MethodInvocationFinder(
@@ -40,7 +40,7 @@ class MethodInvocationFinder(
 
     fun buildInvocationTree(
         methodWrapper: MethodWrapper,
-    ): BaseNode? {
+    ): BaseNodeDescriptor? {
         if (visited.contains(methodWrapper)) {
             return null
         }
@@ -60,11 +60,11 @@ class MethodInvocationFinder(
         }.toSet()
 
         // 1. 기준 메서드에 대한 노드
-        val newNode = ClassMethodNode(methodWrapper)
+        val newNode = ClassMethodNodeDescriptor(methodWrapper)
         // 2. 기준 메서드를 호출하는 테스트 메서드를 자식 노드로 먼저 추가
         newNode.addChildren(
             testMethods.map {
-                TestMethodNode(it)
+                TestMethodNodeDescriptor(it)
             }
         )
 

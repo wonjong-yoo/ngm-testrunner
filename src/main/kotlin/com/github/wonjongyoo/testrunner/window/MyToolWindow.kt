@@ -1,6 +1,6 @@
 package com.github.wonjongyoo.testrunner.window
 
-import com.github.wonjongyoo.testrunner.node.BaseNode
+import com.github.wonjongyoo.testrunner.node.BaseNodeDescriptor
 import com.github.wonjongyoo.testrunner.node.visitor.FindingTestMethodVisitor
 import com.github.wonjongyoo.testrunner.runner.JunitTestRunner
 import com.intellij.openapi.wm.ToolWindow
@@ -22,13 +22,14 @@ class MyToolWindow(
     toolWindow: ToolWindow
 ) {
     val mainPanel: JPanel
-    private val tree: SimpleTree
+    val tree: SimpleTree
 
     init {
         val project = toolWindow.project
         val treeModelHolder = project.getService(TreeModelHolder::class.java)
         treeModelHolder.treeModel = DefaultTreeModel(DefaultMutableTreeNode())
-        tree = SimpleTree(treeModelHolder.treeModel)
+
+        tree = MySimpleTree()
         tree.cellRenderer = CustomTreeCellRenderer()
         tree.addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent) {
@@ -62,7 +63,7 @@ class MyToolWindow(
             val visitor = FindingTestMethodVisitor()
 
             val targetSet = selectedNodes.map { baseNode ->
-                (baseNode as BaseNode).accept(visitor)
+                (baseNode as BaseNodeDescriptor).accept(visitor)
                 visitor.getTestMethodWrappers()
             }
                 .flatten()

@@ -1,6 +1,6 @@
 package com.github.wonjongyoo.testrunner.intention
 
-import com.github.wonjongyoo.testrunner.node.BaseNode
+import com.github.wonjongyoo.testrunner.node.BaseNodeDescriptor
 import com.github.wonjongyoo.testrunner.utils.MethodInvocationFinder
 import com.github.wonjongyoo.testrunner.utils.MethodWrapper
 import com.github.wonjongyoo.testrunner.utils.toWrapper
@@ -56,10 +56,10 @@ class CaretBasedTestRunnerIntention: IntentionAction {
         node.printNodeRecursively()
     }
 
-    private fun updateTree(project: Project, baseNode: BaseNode) {
+    private fun updateTree(project: Project, baseNodeDescriptor: BaseNodeDescriptor) {
         val treeModelHolder = project.getService(TreeModelHolder::class.java)
 
-        treeModelHolder?.treeModel?.setRoot(baseNode.toTreeNode())
+        treeModelHolder?.treeModel?.setRoot(baseNodeDescriptor.toTreeNode())
         treeModelHolder?.treeModel?.reload()
     }
 

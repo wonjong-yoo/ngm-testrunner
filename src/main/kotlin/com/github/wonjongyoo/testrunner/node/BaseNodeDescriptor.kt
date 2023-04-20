@@ -2,13 +2,16 @@ package com.github.wonjongyoo.testrunner.node
 
 import com.github.wonjongyoo.testrunner.node.visitor.NodeRecursiveWalkingVisitor
 import com.github.wonjongyoo.testrunner.utils.MethodWrapper
+import com.intellij.ide.projectView.impl.ProjectViewTree
 import com.intellij.ui.treeStructure.SimpleNode
+import java.awt.Color
 import javax.swing.tree.DefaultMutableTreeNode
 
-abstract class BaseNode(
+abstract class BaseNodeDescriptor(
     val methodWrapper: MethodWrapper
 ): SimpleNode(methodWrapper.getElement().project) {
-    private val children: MutableSet<BaseNode> = mutableSetOf()
+    private val children: MutableSet<BaseNodeDescriptor> = mutableSetOf()
+    val backgroundColorCached: Color? = ProjectViewTree.getColorForElement(methodWrapper.getElement())
 
     abstract override fun getName(): String?
 
@@ -16,12 +19,12 @@ abstract class BaseNode(
         return methodWrapper.getMethodName()
     }
 
-    override fun getChildren(): Array<BaseNode> {
+    override fun getChildren(): Array<BaseNodeDescriptor> {
         return children.toTypedArray()
     }
 
-    fun addChildren(baseNode: List<BaseNode>) {
-        children.addAll(baseNode)
+    fun addChildren(baseNodeDescriptor: List<BaseNodeDescriptor>) {
+        children.addAll(baseNodeDescriptor)
     }
 
     fun accept(visitor: NodeRecursiveWalkingVisitor) {

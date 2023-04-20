@@ -1,24 +1,24 @@
 package com.github.wonjongyoo.testrunner.node.visitor
 
-import com.github.wonjongyoo.testrunner.node.BaseNode
-import com.github.wonjongyoo.testrunner.node.TestMethodNode
+import com.github.wonjongyoo.testrunner.node.BaseNodeDescriptor
+import com.github.wonjongyoo.testrunner.node.TestMethodNodeDescriptor
 import com.github.wonjongyoo.testrunner.utils.MethodWrapper
 
 class FindingTestMethodVisitor : NodeRecursiveWalkingVisitor() {
-    val testMethodNodes: MutableSet<TestMethodNode> = mutableSetOf()
-    val visited: MutableSet<BaseNode> = mutableSetOf()
+    val testMethodNodes: MutableSet<TestMethodNodeDescriptor> = mutableSetOf()
+    val visited: MutableSet<BaseNodeDescriptor> = mutableSetOf()
 
-    override fun visitNode(baseNode: BaseNode) {
-        if (visited.contains(baseNode)) {
+    override fun visitNode(baseNodeDescriptor: BaseNodeDescriptor) {
+        if (visited.contains(baseNodeDescriptor)) {
             return
         }
-        visited.add(baseNode)
+        visited.add(baseNodeDescriptor)
 
-        if (baseNode is TestMethodNode) {
-            testMethodNodes.add(baseNode)
+        if (baseNodeDescriptor is TestMethodNodeDescriptor) {
+            testMethodNodes.add(baseNodeDescriptor)
         }
 
-        super.visitNode(baseNode)
+        super.visitNode(baseNodeDescriptor)
     }
 
     fun getTestMethodWrappers(): Set<MethodWrapper> {

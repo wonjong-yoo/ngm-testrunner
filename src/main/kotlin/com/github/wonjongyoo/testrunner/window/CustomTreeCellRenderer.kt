@@ -1,6 +1,6 @@
 package com.github.wonjongyoo.testrunner.window
 
-import com.github.wonjongyoo.testrunner.node.BaseNode
+import com.github.wonjongyoo.testrunner.node.BaseNodeDescriptor
 import com.intellij.icons.AllIcons
 import com.intellij.ide.util.treeView.NodeRenderer
 import com.intellij.ui.JBColor
@@ -29,7 +29,7 @@ class CustomTreeCellRenderer : NodeRenderer() {
             val userObject = value.userObject
             if (userObject != null) {
                 when (userObject) {
-                    is BaseNode -> {
+                    is BaseNodeDescriptor -> {
                         append(userObject.name ?: "NULL", SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, null, JBColor.YELLOW))
                         this.icon = userObject.icon
                     }

@@ -1,10 +1,10 @@
 package com.github.wonjongyoo.testrunner.node.visitor
 
-import com.github.wonjongyoo.testrunner.node.BaseNode
+import com.github.wonjongyoo.testrunner.node.BaseNodeDescriptor
 
 abstract class NodeRecursiveWalkingVisitor {
-    open fun visitNode(baseNode: BaseNode) {
-        for (child in baseNode.children) {
+    open fun visitNode(baseNodeDescriptor: BaseNodeDescriptor) {
+        for (child in baseNodeDescriptor.children) {
             visitNode(child)
         }
     }
