@@ -42,6 +42,7 @@ class MethodInvocationFinder(
         methodWrapper: MethodWrapper,
     ): BaseNodeDescriptor? {
         if (visited.contains(methodWrapper)) {
+            println("already visited : ${methodWrapper.getMethodName()}")
             return null
         }
         visited.add(methodWrapper)
@@ -75,7 +76,7 @@ class MethodInvocationFinder(
             }
         newNode.addChildren(childNodes)
 
-        return if (testMethods.isEmpty() && childNodes.isEmpty()) null else newNode
+        return newNode
     }
 }
 
