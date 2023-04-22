@@ -1,12 +1,14 @@
 package com.github.wonjongyoo.testrunner.utils
 
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiJavaCodeReferenceElement
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiReference
-import com.intellij.psi.PsiReferenceExpression
+import com.intellij.psi.impl.source.PsiParameterImpl
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
+import org.jetbrains.kotlin.nj2k.postProcessing.type
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
@@ -22,22 +24,32 @@ interface MethodWrapper {
     fun getContainingClassName(): String
 
     fun getMethodName(): String
+
+    fun getArgumentTypes(): List<String>
 }
 
 class KtNamedFunctionWrapper(val ktNamedFunction: KtNamedFunction) : MethodWrapper {
+    var isJunitTestMethodCached: Boolean? = null
+
     override fun getElement(): KtNamedFunction {
         return ktNamedFunction
     }
 
     override fun isJunitTestMethod(): Boolean {
-        val annotationEntries = ktNamedFunction.annotationEntries
+        if (isJunitTestMethodCached == null) {
+            val annotationEntries = ktNamedFunction.annotationEntries
 
-        return annotationEntries.any {
-            val bindingContext = it.analyze()
-            val fqName = bindingContext.get(BindingContext.ANNOTATION, it)?.fqName?.asString() ?: return@any false
+            isJunitTestMethodCached = annotationEntries.any {
+                val bindingContext = it.analyze()
+                val fqName = bindingContext.get(BindingContext.ANNOTATION, it)?.fqName?.asString() ?: return@any false
 
-            fqName.contains("junit") && fqName.contains("Test")
+                fqName.contains("Test")
+            }
+
+            return isJunitTestMethodCached!!
         }
+
+        return isJunitTestMethodCached!!
     }
 
     override fun getContainingClassFqName(): String {
@@ -52,6 +64,16 @@ class KtNamedFunctionWrapper(val ktNamedFunction: KtNamedFunction) : MethodWrapp
 
     override fun getMethodName(): String {
         return ktNamedFunction.name ?: return ""
+    }
+
+    override fun getArgumentTypes(): List<String> {
+        if (ktNamedFunction.valueParameters.isEmpty()) {
+            return listOf()
+        }
+
+        return ktNamedFunction.valueParameters.map {
+            it.type()?.toString() ?: "NULL"
+        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -72,12 +94,22 @@ class KtNamedFunctionWrapper(val ktNamedFunction: KtNamedFunction) : MethodWrapp
 
 fun KtNamedFunction.toWrapper() = KtNamedFunctionWrapper(this)
 class PsiMethodWrapper(val psiMethod: PsiMethod) : MethodWrapper {
+    var isJunitTestMethodCached: Boolean? = null
+
     override fun getElement(): PsiMethod {
         return psiMethod
     }
 
     override fun isJunitTestMethod(): Boolean {
-        return false
+        if (isJunitTestMethodCached == null) {
+            isJunitTestMethodCached = psiMethod.annotations.any {
+                it.qualifiedName?.contains("Test") ?: false
+            }
+
+            return isJunitTestMethodCached!!
+        }
+
+        return isJunitTestMethodCached!!
     }
 
     override fun getContainingClassFqName(): String {
@@ -92,6 +124,16 @@ class PsiMethodWrapper(val psiMethod: PsiMethod) : MethodWrapper {
 
     override fun getMethodName(): String {
         return psiMethod.name
+    }
+
+    override fun getArgumentTypes(): List<String> {
+        if (psiMethod.parameters.isEmpty()) {
+            return listOf()
+        }
+
+        return psiMethod.parameters.map {
+            (it as PsiParameterImpl).typeElement?.text ?: "NULL"
+        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -117,7 +159,7 @@ fun PsiReference.searchPsiFunctionElement(): MethodWrapper? {
         return PsiTreeUtil.getParentOfType(this.element, KtNamedFunction::class.java)?.toWrapper()
     }
 
-    if (this is PsiReferenceExpression) {
+    if (this is PsiJavaCodeReferenceElement) {
         return this.getParentOfType<PsiMethod>(true)?.toWrapper()
     }
 

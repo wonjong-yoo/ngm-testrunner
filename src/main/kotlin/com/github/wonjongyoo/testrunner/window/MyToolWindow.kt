@@ -3,7 +3,13 @@ package com.github.wonjongyoo.testrunner.window
 import com.github.wonjongyoo.testrunner.node.BaseNodeDescriptor
 import com.github.wonjongyoo.testrunner.node.visitor.FindingTestMethodVisitor
 import com.github.wonjongyoo.testrunner.runner.JunitTestRunner
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.ScrollType
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
+import com.intellij.psi.PsiElement
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.treeStructure.SimpleNode
 import com.intellij.ui.treeStructure.SimpleTree
@@ -29,7 +35,7 @@ class MyToolWindow(
         val treeModelHolder = project.getService(TreeModelHolder::class.java)
         treeModelHolder.treeModel = DefaultTreeModel(DefaultMutableTreeNode())
 
-        tree = MySimpleTree()
+        tree = MySimpleTree(treeModelHolder.treeModel)
         tree.cellRenderer = CustomTreeCellRenderer()
         tree.addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent) {
@@ -40,11 +46,36 @@ class MyToolWindow(
                         showPopupMenu(tree, e.x, e.y)
                     }
                 }
+
+                if (e.clickCount == 2) {
+                    val row = tree.getRowForLocation(e.x, e.y)
+                    if (row != -1) {
+                        val selectedNode = tree.selectedNode
+
+                        if (selectedNode is BaseNodeDescriptor) {
+                            val psiElement = selectedNode.methodWrapper.getElement()
+                            navigateToPsiElement(project, psiElement)
+                        }
+                    }
+                }
             }
         })
 
         mainPanel = JPanel(BorderLayout())
         mainPanel.add(JBScrollPane(tree), BorderLayout.CENTER)
+    }
+
+    private fun navigateToPsiElement(project: Project, psiElement: PsiElement) {
+        val virtualFile = psiElement.containingFile.virtualFile
+        if (virtualFile != null) {
+            val fileEditorManager = FileEditorManager.getInstance(project)
+            val editor: Editor? =
+                fileEditorManager.openTextEditor(OpenFileDescriptor(project, virtualFile, psiElement.textOffset), true)
+            if (editor != null) {
+                editor.getCaretModel().moveToOffset(psiElement.textOffset)
+                editor.getScrollingModel().scrollToCaret(ScrollType.CENTER)
+            }
+        }
     }
 
     private fun showPopupMenu(component: JComponent, x: Int, y: Int) {

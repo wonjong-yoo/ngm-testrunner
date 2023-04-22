@@ -12,6 +12,9 @@ class ClassMethodNodeDescriptor(methodWrapper: MethodWrapper) : BaseNodeDescript
     }
 
     override fun getName(): String {
-        return "${methodWrapper.getContainingClassName()}#${methodWrapper.getMethodName()}"
+        val argumentTypes = methodWrapper.getArgumentTypes()
+        argumentTypes.joinToString(", ")
+
+        return "${methodWrapper.getContainingClassName()}.${methodWrapper.getMethodName()}(${argumentTypes.joinToString(", ")})"
     }
 }

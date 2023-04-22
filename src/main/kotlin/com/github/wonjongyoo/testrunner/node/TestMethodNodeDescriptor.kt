@@ -10,7 +10,10 @@ class TestMethodNodeDescriptor(methodWrapper: MethodWrapper) : BaseNodeDescripto
     }
 
     override fun getName(): String {
-        return "${methodWrapper.getContainingClassName()}#${methodWrapper.getMethodName()}"
+        val argumentTypes = methodWrapper.getArgumentTypes()
+        argumentTypes.joinToString(", ")
+
+        return "${methodWrapper.getContainingClassName()}.${methodWrapper.getMethodName()}(${argumentTypes.joinToString(", ")})"
     }
 
     fun setIconByTestResult(isSuccess: Boolean) {
