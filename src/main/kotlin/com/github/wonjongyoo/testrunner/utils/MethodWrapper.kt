@@ -6,6 +6,7 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiReference
 import com.intellij.psi.impl.source.PsiParameterImpl
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.idea.base.utils.fqname.getKotlinFqName
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
 import org.jetbrains.kotlin.nj2k.postProcessing.type
@@ -53,13 +54,25 @@ class KtNamedFunctionWrapper(val ktNamedFunction: KtNamedFunction) : MethodWrapp
     }
 
     override fun getContainingClassFqName(): String {
+        // 확장함수
+        val receiverTypeReference = this.ktNamedFunction.receiverTypeReference
+        if (receiverTypeReference != null) {
+            return receiverTypeReference.getKotlinFqName().toString()
+        }
+
         val ktClass = this.ktNamedFunction.getParentOfType<KtClass>(true) ?: throw RuntimeException("There is no containing class")
         return ktClass.fqName.toString()
     }
 
     override fun getContainingClassName(): String {
+        // 확장함수
+        val receiverTypeReference = this.ktNamedFunction.receiverTypeReference
+        if (receiverTypeReference != null) {
+            return receiverTypeReference.text ?: "NO CLASS"
+        }
+
         val ktClass = this.ktNamedFunction.getParentOfType<KtClass>(true) ?: throw RuntimeException("There is no containing class")
-        return ktClass.name ?: ""
+        return ktClass.name ?: "NO CLASS"
     }
 
     override fun getMethodName(): String {
