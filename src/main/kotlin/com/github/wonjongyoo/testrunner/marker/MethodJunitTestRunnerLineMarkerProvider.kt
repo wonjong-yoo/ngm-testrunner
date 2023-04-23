@@ -4,6 +4,7 @@ import com.github.wonjongyoo.testrunner.node.visitor.FindingTestMethodVisitor
 import com.github.wonjongyoo.testrunner.runner.JunitTestRunner
 import com.github.wonjongyoo.testrunner.utils.MethodInvocationFinder
 import com.github.wonjongyoo.testrunner.utils.MethodWrapper
+import com.github.wonjongyoo.testrunner.utils.ToolWindowUtils
 import com.github.wonjongyoo.testrunner.utils.toWrapper
 import com.github.wonjongyoo.testrunner.window.TreeModelHolder
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
@@ -44,6 +45,8 @@ class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
                     treeModelHolder.treeModel.reload()
 
                     JunitTestRunner.runTestMethods(elt.project, visitor.getTestMethodWrappers(), "Run all affected tests in ${element.text}")
+
+                    ToolWindowUtils.activateNgmTestRunnerToolWindow(element.project)
                 }
 
                 val marker = NavigationGutterIconBuilder.create(TestState.Run)

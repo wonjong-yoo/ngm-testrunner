@@ -13,7 +13,19 @@ abstract class BaseNodeDescriptor(
     private val children: MutableSet<BaseNodeDescriptor> = mutableSetOf()
     val backgroundColorCached: Color? = ProjectViewTree.getColorForElement(methodWrapper.getElement())
 
-    abstract override fun getName(): String?
+    override fun getName(): String {
+        val argumentTypes = methodWrapper.getArgumentTypes()
+        argumentTypes.joinToString(", ")
+
+        return "${methodWrapper.getContainingClassName()}.${methodWrapper.getMethodName()}"
+    }
+
+    fun getMethodSignature(): String {
+        val argumentTypes = methodWrapper.getArgumentTypes()
+        argumentTypes.joinToString(", ")
+
+        return "${this.name}(${argumentTypes.joinToString(", ")})"
+    }
 
     override fun toString(): String {
         return methodWrapper.getMethodName()
@@ -47,5 +59,26 @@ abstract class BaseNodeDescriptor(
         }
 
         return node
+    }
+
+    fun applyTestResult(): Pair<Int, Int> {
+        var allTest = 0
+        var passedTest = 0
+
+        if (this is TestMethodNodeDescriptor) {
+            allTest += 1
+            passedTest += if (this.isPass == true) 1 else 0
+        } else if (this is ClassMethodNodeDescriptor) {
+            for (child in this.children) {
+                val test = child.applyTestResult()
+                allTest += test.first
+                passedTest += test.second
+            }
+
+            this.allTestCount = allTest
+            this.passedTestCount = passedTest
+        }
+
+        return allTest to passedTest
     }
 }

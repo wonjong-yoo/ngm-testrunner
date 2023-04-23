@@ -3,6 +3,7 @@ package com.github.wonjongyoo.testrunner.intention
 import com.github.wonjongyoo.testrunner.node.BaseNodeDescriptor
 import com.github.wonjongyoo.testrunner.utils.MethodInvocationFinder
 import com.github.wonjongyoo.testrunner.utils.MethodWrapper
+import com.github.wonjongyoo.testrunner.utils.ToolWindowUtils
 import com.github.wonjongyoo.testrunner.utils.toWrapper
 import com.github.wonjongyoo.testrunner.window.TreeModelHolder
 import com.intellij.codeInsight.intention.IntentionAction
@@ -54,6 +55,8 @@ class CaretBasedTestRunnerIntention: IntentionAction {
         updateTree(project, node!!)
 
         node.printNodeRecursively()
+
+        ToolWindowUtils.activateNgmTestRunnerToolWindow(project)
     }
 
     private fun updateTree(project: Project, baseNodeDescriptor: BaseNodeDescriptor) {

@@ -1,0 +1,22 @@
+package com.github.wonjongyoo.testrunner.utils
+
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.ToolWindowManager
+
+class ToolWindowUtils {
+    companion object {
+        val ngmTestRunnerToolWindowId = "NGM TestRunner"
+        fun activateNgmTestRunnerToolWindow(project: Project) {
+            val toolWindowManager = ToolWindowManager.getInstance(project)
+
+            val ngmTestRunnerToolWindow = toolWindowManager.getToolWindow(ngmTestRunnerToolWindowId)
+            if (ngmTestRunnerToolWindow == null) {
+                println("There is no ngm test runner tool window.")
+                return
+            }
+
+            ngmTestRunnerToolWindow.activate(null)
+
+        }
+    }
+}

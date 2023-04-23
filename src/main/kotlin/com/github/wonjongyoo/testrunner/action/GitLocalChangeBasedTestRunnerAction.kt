@@ -4,6 +4,7 @@ import com.github.wonjongyoo.testrunner.node.visitor.FindingTestMethodVisitor
 import com.github.wonjongyoo.testrunner.runner.JunitTestRunner
 import com.github.wonjongyoo.testrunner.utils.MethodInvocationFinder
 import com.github.wonjongyoo.testrunner.utils.TextRangeBasedMethodVisitor
+import com.github.wonjongyoo.testrunner.utils.ToolWindowUtils
 import com.github.wonjongyoo.testrunner.window.TreeModelHolder
 import com.intellij.codeInsight.actions.VcsFacade
 import com.intellij.openapi.actionSystem.AnAction
@@ -68,6 +69,8 @@ class GitLocalChangeBasedTestRunnerAction: AnAction() {
             .flatten()
             .toSet()
 
-        JunitTestRunner.runTestMethods(project, testMethodWrappers, "Run all tests in locally change files")
+        JunitTestRunner.runTestMethods(project, testMethodWrappers, "Run all tests in locally changed files")
+
+        ToolWindowUtils.activateNgmTestRunnerToolWindow(project)
     }
 }

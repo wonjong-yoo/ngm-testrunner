@@ -1,6 +1,7 @@
 package com.github.wonjongyoo.testrunner.window
 
 import com.github.wonjongyoo.testrunner.node.BaseNodeDescriptor
+import com.github.wonjongyoo.testrunner.node.ClassMethodNodeDescriptor
 import com.intellij.icons.AllIcons
 import com.intellij.ide.util.treeView.NodeRenderer
 import com.intellij.ui.JBColor
@@ -29,8 +30,19 @@ class CustomTreeCellRenderer : NodeRenderer() {
             val userObject = value.userObject
             if (userObject != null) {
                 when (userObject) {
+                    is ClassMethodNodeDescriptor -> {
+                        append(userObject.name, SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, null, JBColor.YELLOW))
+                        this.icon = userObject.icon
+                        if (userObject.allTestCount != null) {
+                            if (userObject.allTestCount != 0) {
+                                append(" (${userObject.passedTestCount} / ${userObject.allTestCount})", SimpleTextAttributes(SimpleTextAttributes.STYLE_ITALIC, null))
+                            } else {
+                                append(" (no test)", SimpleTextAttributes(SimpleTextAttributes.STYLE_ITALIC, null))
+                            }
+                        }
+                    }
                     is BaseNodeDescriptor -> {
-                        append(userObject.name ?: "NULL", SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, null, JBColor.YELLOW))
+                        append(userObject.name, SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, null, JBColor.YELLOW))
                         this.icon = userObject.icon
                     }
                     is String -> {

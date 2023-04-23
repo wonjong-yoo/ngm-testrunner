@@ -39,6 +39,7 @@ class MyToolWindow(
         tree.cellRenderer = CustomTreeCellRenderer()
         tree.addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent) {
+                // 마우스 오른쪽 버튼 클릭시 Popup Menu 노출
                 if (SwingUtilities.isRightMouseButton(e)) {
                     val row = tree.getRowForLocation(e.x, e.y)
                     if (row != -1) {
@@ -47,6 +48,7 @@ class MyToolWindow(
                     }
                 }
 
+                // 더블 클릭시 해당 PsiElement 위치로 이동
                 if (e.clickCount == 2) {
                     val row = tree.getRowForLocation(e.x, e.y)
                     if (row != -1) {

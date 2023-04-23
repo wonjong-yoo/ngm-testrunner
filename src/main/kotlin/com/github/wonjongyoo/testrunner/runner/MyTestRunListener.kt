@@ -3,6 +3,7 @@ package com.github.wonjongyoo.testrunner.runner
 import com.github.wonjongyoo.testrunner.node.BaseNodeDescriptor
 import com.github.wonjongyoo.testrunner.node.visitor.ChangingTestMethodIconVisitor
 import com.github.wonjongyoo.testrunner.utils.TestRunResult
+import com.github.wonjongyoo.testrunner.utils.ToolWindowUtils
 import com.github.wonjongyoo.testrunner.window.TreeModelHolder
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.testframework.TestStatusListener
@@ -10,11 +11,6 @@ import com.intellij.openapi.project.Project
 import javax.swing.tree.DefaultMutableTreeNode
 
 class MyTestRunListener : TestStatusListener() {
-    companion object {
-        fun getInstance(project: Project): MyTestRunListener {
-            return project.getService(MyTestRunListener::class.java)
-        }
-    }
 
     override fun testSuiteFinished(root: AbstractTestProxy?) {
         // Nothing..
@@ -36,7 +32,7 @@ class MyTestRunListener : TestStatusListener() {
                 val matchResult = regex.find(locationUrl) ?: return@mapNotNull null
 
                 val (className, methodName) = matchResult.destructured
-                TestRunResult("${className.split(".").last()}#$methodName", it.isPassed)
+                TestRunResult("${className.split(".").last()}.$methodName", it.isPassed)
             }.toList()
 
         val treeModelHolder = project?.getService(TreeModelHolder::class.java) ?: return
@@ -49,10 +45,12 @@ class MyTestRunListener : TestStatusListener() {
 
         targetNodes?.forEach { targetNode ->
             val visitor = ChangingTestMethodIconVisitor(testRunResults)
-
             targetNode.accept(visitor)
+
+            targetNode.applyTestResult()
         }
 
         treeModelHolder.treeModel.reload()
+        ToolWindowUtils.activateNgmTestRunnerToolWindow(project)
     }
 }
