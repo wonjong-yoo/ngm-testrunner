@@ -10,50 +10,21 @@ class MethodInvocationFinder(
 ) {
     private val visited: MutableSet<MethodWrapper> = mutableSetOf()
 
-    fun searchByMethodWrapper(methodWrapper: MethodWrapper): Set<MethodWrapper> {
-        if (visited.contains(methodWrapper)) {
-            return mutableSetOf()
-        }
-        visited.add(methodWrapper)
-
-        val references = ReferenceSearchUtils.searchReferences(methodWrapper.getElement(), project)
-
-        val psiFunctionWrappers = references.mapNotNull {
-            it.searchPsiFunctionElement()
-        }
-
-        // 테스트 메서드 탐색
-        val testMethods = psiFunctionWrappers.filter {
-            it.isJunitTestMethod()
-        }.toSet()
-
-        // 그 외 메서드는 재귀적으로 테스트 메서드를 탐색
-        val testMethodsFromRecursivelySearched = psiFunctionWrappers.filter { !it.isJunitTestMethod() }
-            .map {
-                searchByMethodWrapper(it)
-            }
-            .flatten()
-            .distinct()
-
-        return testMethods + testMethodsFromRecursivelySearched
-    }
-
     fun buildInvocationTree(
         methodWrapper: MethodWrapper,
     ): BaseNodeDescriptor? {
         if (visited.contains(methodWrapper)) {
-            println("already visited : ${methodWrapper.getMethodName()}")
+            println("already visited : ${methodWrapper.getContainingClassFqName()}.${methodWrapper.getMethodName()}")
             return null
         }
         visited.add(methodWrapper)
 
-        println("visit : ${methodWrapper.getMethodName()}")
+        println("visit : ${methodWrapper.getContainingClassFqName()}.${methodWrapper.getMethodName()}")
 
-        val references = ReferenceSearchUtils.searchReferences(methodWrapper.getElement(), project)
-
-        val psiFunctionWrappers = references.mapNotNull {
-            it.searchPsiFunctionElement()
-        }
+        val psiFunctionWrappers = ReferenceSearchUtils.searchReferences(methodWrapper.getElement(), project)
+            .mapNotNull {
+                it.searchPsiFunctionElement()
+            }
 
         // 테스트 메서드 탐색
         val testMethods = psiFunctionWrappers.filter {
