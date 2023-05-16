@@ -121,4 +121,9 @@ tasks {
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
         channels.set(properties("pluginVersion").map { listOf(it.split('-').getOrElse(1) { "default" }.split('.').first()) })
     }
+
+    test {
+        systemProperty("idea.force.use.core.classloader", "true")
+        systemProperties("idea.home.path" to File("$projectDir/../").absolutePath)
+    }
 }
