@@ -4,6 +4,10 @@ import com.github.wonjongyoo.testrunner.node.BaseNodeDescriptor
 import com.github.wonjongyoo.testrunner.node.ClassMethodNodeDescriptor
 import com.github.wonjongyoo.testrunner.node.TestMethodNodeDescriptor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.JavaPsiFacade
+import org.jetbrains.kotlin.idea.search.projectScope
+import org.jetbrains.kotlin.idea.stubindex.KotlinFullClassNameIndex
+import org.jetbrains.kotlin.psi.KtNamedFunction
 
 class MethodInvocationFinder(
     val project: Project
@@ -30,12 +34,45 @@ class MethodInvocationFinder(
         val testMethods = psiFunctionWrappers.filter {
             it.isJunitTestMethod()
         }.toSet()
+        val controllerTestMethods = methodWrapper.let {
+            val classFqName = it.getContainingClassFqName()
+            if (classFqName.contains("Controller")) {
+                val psiFacade = JavaPsiFacade.getInstance(project)
+                val targetControllerTestClassName = "${classFqName}Test"
+                val javaControllerTestClass = psiFacade.findClass(
+                    targetControllerTestClassName,
+                    project.projectScope()
+                )
+
+                val target: List<MethodWrapper> = javaControllerTestClass?.methods
+                    ?.filter { method ->
+                        method.name.contains(it.getMethodName())
+                    }
+                    ?.map { method -> method.toWrapper() } ?: listOf()
+
+                val kotlinFullClassNameIndex = KotlinFullClassNameIndex.getInstance()
+                val target2: List<MethodWrapper> = kotlinFullClassNameIndex.get(targetControllerTestClassName, project, project.projectScope())
+                    .firstOrNull()
+                    ?.declarations
+                    ?.filterIsInstance<KtNamedFunction>()
+                    ?.filter {  function ->
+                        function.name?.contains(it.getMethodName()) ?: false
+                    }
+                    ?.map { function ->
+                        function.toWrapper()
+                    } ?: listOf()
+
+                return@let (target + target2)
+            }
+
+            listOf()
+        }
 
         // 1. 기준 메서드에 대한 노드
         val newNode = ClassMethodNodeDescriptor(methodWrapper)
         // 2. 기준 메서드를 호출하는 테스트 메서드를 자식 노드로 먼저 추가
         newNode.addChildren(
-            testMethods.map {
+            (testMethods + controllerTestMethods).map {
                 TestMethodNodeDescriptor(it)
             }
         )
