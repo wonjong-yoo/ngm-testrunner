@@ -155,9 +155,7 @@ class PsiMethodWrapper(val psiMethod: PsiMethod) : MethodWrapper {
 
         other as PsiMethodWrapper
 
-        if (psiMethod != other.psiMethod) return false
-
-        return true
+        return psiMethod == other.psiMethod
     }
 
     override fun hashCode(): Int {

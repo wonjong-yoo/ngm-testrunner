@@ -5,6 +5,7 @@ import com.github.wonjongyoo.testrunner.node.ClassMethodNodeDescriptor
 import com.github.wonjongyoo.testrunner.node.TestMethodNodeDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.JavaPsiFacade
+import org.jetbrains.kotlin.asJava.elements.KtLightMethod
 import org.jetbrains.kotlin.idea.search.projectScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinFullClassNameIndex
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -47,6 +48,9 @@ class MethodInvocationFinder(
                 val target: List<MethodWrapper> = javaControllerTestClass?.methods
                     ?.filter { method ->
                         method.name.contains(it.getMethodName())
+                    }
+                    ?.filter { method ->
+                        method !is KtLightMethod
                     }
                     ?.map { method -> method.toWrapper() } ?: listOf()
 
