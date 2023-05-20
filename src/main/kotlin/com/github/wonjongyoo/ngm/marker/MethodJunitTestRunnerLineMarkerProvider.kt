@@ -22,32 +22,13 @@ class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>,
         forNavigation: Boolean
     ) {
-        for (element in elements) {
-            if (element is PsiIdentifier && element.parent is PsiMethod) {
-
-                val navigationHandler = GutterIconNavigationHandler<PsiElement> { event, elt ->
-                    val elementAtCurrentOffset = element.parent as PsiMethod
-
-                    val methodWrapper: MethodWrapper = elementAtCurrentOffset.toWrapper()
-
-                    val finder = MethodInvocationFinder(elt.project)
-                    val rootBaseNode = finder.buildInvocationTree(methodWrapper)
-                    if (rootBaseNode == null) {
-                        println("invocation tree is null")
-                        return@GutterIconNavigationHandler
-                    }
-
-                    val visitor = FindingTestMethodVisitor()
-                    rootBaseNode.accept(visitor)
-
-                    val treeModelHolder = elt.project.getService(TreeModelHolder::class.java)
-                    treeModelHolder.treeModel.setRoot(rootBaseNode.toTreeNode())
-                    treeModelHolder.treeModel.reload()
-
-                    JunitTestRunner.runTestMethods(elt.project, visitor.getTestMethodWrappers(), "Run all affected tests in ${element.text}")
-
-                    ToolWindowUtils.activateNgmTestRunnerToolWindow(element.project)
-                }
+        elements
+            .filter { it is PsiIdentifier && it.parent is PsiMethod }
+            .filterNot {
+                (it.parent as PsiMethod).modifierList.annotations.any { it.qualifiedName == "org.junit.Test" }
+            }
+            .forEach { element ->
+                val navigationHandler = createIconNavigationHandler(element)
 
                 val marker = NavigationGutterIconBuilder.create(TestState.Run)
                     .setTooltipText("Run all affected tests by ${(element.parent as PsiMethod).containingClass?.name}#${element.text}")
@@ -56,6 +37,30 @@ class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
 
                 result.add(marker)
             }
-        }
     }
+
+    private fun createIconNavigationHandler(element: PsiElement): GutterIconNavigationHandler<PsiElement> = GutterIconNavigationHandler<PsiElement> { _, elt ->
+        val elementAtCurrentOffset = element.parent as PsiMethod
+
+        val methodWrapper: MethodWrapper = elementAtCurrentOffset.toWrapper()
+
+        val finder = MethodInvocationFinder(elt.project)
+        val rootBaseNode = finder.buildInvocationTree(methodWrapper)
+        if (rootBaseNode == null) {
+            println("invocation tree is null")
+            return@GutterIconNavigationHandler
+        }
+
+        val visitor = FindingTestMethodVisitor()
+        rootBaseNode.accept(visitor)
+
+        val treeModelHolder = elt.project.getService(TreeModelHolder::class.java)
+        treeModelHolder.treeModel.setRoot(rootBaseNode.toTreeNode())
+        treeModelHolder.treeModel.reload()
+
+        JunitTestRunner.runTestMethods(elt.project, visitor.getTestMethodWrappers(), "Run all affected tests in ${element.text}")
+
+        ToolWindowUtils.activateNgmTestRunnerToolWindow(element.project)
+    }
+
 }
