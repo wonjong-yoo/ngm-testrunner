@@ -1,6 +1,6 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.wonjongyoo.testrunner</id>
+    <id>com.github.wonjongyoo.ngm</id>
     <name>>Ninja Guru Magician Test Runner</name>
     <vendor>wonjong-yoo</vendor>
 
@@ -13,31 +13,31 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <intentionAction>
-            <className>com.github.wonjongyoo.testrunner.intention.CaretBasedTestRunnerIntention</className>
+            <className>com.github.wonjongyoo.ngm.intention.CaretBasedTestRunnerIntention</className>
         </intentionAction>
-        <codeInsight.lineMarkerProvider implementationClass="com.github.wonjongyoo.testrunner.marker.MethodJunitTestRunnerLineMarkerProvider"
+        <codeInsight.lineMarkerProvider implementationClass="com.github.wonjongyoo.ngm.marker.MethodJunitTestRunnerLineMarkerProvider"
                                         language="JAVA">
         </codeInsight.lineMarkerProvider>
         <toolWindow
-                factoryClass="com.github.wonjongyoo.testrunner.window.MyToolWindowFactory"
+                factoryClass="com.github.wonjongyoo.ngm.window.MyToolWindowFactory"
                 id="NGM TestRunner"
                 anchor="right"
         />
-        <projectService serviceImplementation="com.github.wonjongyoo.testrunner.window.TreeModelHolder"/>
-        <testStatusListener implementation="com.github.wonjongyoo.testrunner.runner.MyTestRunListener"/>
+        <projectService serviceImplementation="com.github.wonjongyoo.ngm.window.TreeModelHolder"/>
+        <testStatusListener implementation="com.github.wonjongyoo.ngm.testlistener.MyTestRunListener"/>
     </extensions>
 
     <applicationListeners>
     </applicationListeners>
     <actions>
         <group
-                id="com.github.wonjongyoo.testrunner"
+                id="com.github.wonjongyoo.ngm"
                 text="NGM TestRunner"
                 popup="true">
             <add-to-group group-id="RunMenu" anchor="last"/>
             <action
-                    class="com.github.wonjongyoo.testrunner.action.GitLocalChangeBasedTestRunnerAction"
-                    id="com.github.wonjongyoo.testrunner.action.GitLocalChangeBasedTestRunnerAction"
+                    class="com.github.wonjongyoo.ngm.action.GitLocalChangeBasedTestRunnerAction"
+                    id="com.github.wonjongyoo.ngm.action.GitLocalChangeBasedTestRunnerAction"
                     text="Run All Affected Tests Based on Git Local Changes"
                     description="Enable auto expression converter">
             </action>
