@@ -25,7 +25,9 @@ class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
         elements
             .filter { it is PsiIdentifier && it.parent is PsiMethod }
             .filterNot {
-                (it.parent as PsiMethod).modifierList.annotations.any { it.qualifiedName == "org.junit.Test" }
+                (it.parent as PsiMethod).modifierList.annotations.any { annotation ->
+                    annotation.qualifiedName?.contains("org.junit") ?: false
+                }
             }
             .forEach { element ->
                 val navigationHandler = createIconNavigationHandler(element)
