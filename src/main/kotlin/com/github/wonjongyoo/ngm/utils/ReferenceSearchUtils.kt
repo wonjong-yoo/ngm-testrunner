@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReference
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
-import org.jetbrains.kotlin.idea.search.projectScope
+import org.jetbrains.kotlin.idea.base.util.projectScope
 
 class ReferenceSearchUtils {
     companion object {

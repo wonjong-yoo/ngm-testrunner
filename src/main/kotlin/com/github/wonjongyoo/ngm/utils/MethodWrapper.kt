@@ -6,7 +6,7 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiReference
 import com.intellij.psi.impl.source.PsiParameterImpl
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.idea.base.utils.fqname.getKotlinFqName
+import org.jetbrains.kotlin.idea.base.psi.kotlinFqName
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
 import org.jetbrains.kotlin.nj2k.postProcessing.type
@@ -57,7 +57,7 @@ class KtNamedFunctionWrapper(val ktNamedFunction: KtNamedFunction) : MethodWrapp
         // 확장함수
         val receiverTypeReference = this.ktNamedFunction.receiverTypeReference
         if (receiverTypeReference != null) {
-            return receiverTypeReference.getKotlinFqName().toString()
+            return receiverTypeReference.kotlinFqName.toString()
         }
 
         val ktClass = this.ktNamedFunction.getParentOfType<KtClass>(true) ?: throw RuntimeException("There is no containing class")
@@ -107,7 +107,7 @@ class KtNamedFunctionWrapper(val ktNamedFunction: KtNamedFunction) : MethodWrapp
 
 fun KtNamedFunction.toWrapper() = KtNamedFunctionWrapper(this)
 class PsiMethodWrapper(val psiMethod: PsiMethod) : MethodWrapper {
-    var isJunitTestMethodCached: Boolean? = null
+    private var isJunitTestMethodCached: Boolean? = null
 
     override fun getElement(): PsiMethod {
         return psiMethod

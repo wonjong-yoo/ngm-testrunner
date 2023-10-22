@@ -6,7 +6,7 @@ import com.github.wonjongyoo.ngm.node.TestMethodNodeDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.JavaPsiFacade
 import org.jetbrains.kotlin.asJava.elements.KtLightMethod
-import org.jetbrains.kotlin.idea.search.projectScope
+import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinFullClassNameIndex
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
@@ -53,9 +53,7 @@ class MethodInvocationFinder(
                         method !is KtLightMethod
                     }
                     ?.map { method -> method.toWrapper() } ?: listOf()
-
-                val kotlinFullClassNameIndex = KotlinFullClassNameIndex.getInstance()
-                val target2: List<MethodWrapper> = kotlinFullClassNameIndex.get(targetControllerTestClassName, project, project.projectScope())
+                val target2: List<MethodWrapper> = KotlinFullClassNameIndex.get(targetControllerTestClassName, project, project.projectScope())
                     .firstOrNull()
                     ?.declarations
                     ?.filterIsInstance<KtNamedFunction>()
