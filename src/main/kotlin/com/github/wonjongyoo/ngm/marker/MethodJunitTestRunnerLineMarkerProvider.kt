@@ -1,5 +1,6 @@
 package com.github.wonjongyoo.ngm.marker
 
+import com.github.wonjongyoo.ngm.icons.NgmTestRunnerIcons
 import com.github.wonjongyoo.ngm.node.visitor.FindingTestMethodVisitor
 import com.github.wonjongyoo.ngm.testrunner.JunitTestRunner
 import com.github.wonjongyoo.ngm.utils.MethodInvocationFinder
@@ -11,7 +12,6 @@ import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder
-import com.intellij.icons.AllIcons.RunConfigurations.TestState
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiIdentifier
 import com.intellij.psi.PsiMethod
@@ -32,9 +32,10 @@ class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
             .forEach { element ->
                 val navigationHandler = createIconNavigationHandler(element)
 
-                val marker = NavigationGutterIconBuilder.create(TestState.Run)
+                val marker = NavigationGutterIconBuilder.create(NgmTestRunnerIcons.icon)
                     .setTooltipText("Run all affected tests by ${(element.parent as PsiMethod).containingClass?.name}#${element.text}")
                     .setTarget(element)
+                    .setPopupTitle("Run all affected tests by ${(element.parent as PsiMethod).containingClass?.name}#${element.text}")
                     .createLineMarkerInfo(element, navigationHandler)
 
                 result.add(marker)
