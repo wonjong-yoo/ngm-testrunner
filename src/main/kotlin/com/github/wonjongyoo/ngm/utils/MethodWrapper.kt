@@ -6,10 +6,11 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiReference
 import com.intellij.psi.impl.source.PsiParameterImpl
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.idea.base.psi.kotlinFqName
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
+import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptorIfAny
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
-import org.jetbrains.kotlin.nj2k.postProcessing.type
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
@@ -85,7 +86,7 @@ class KtNamedFunctionWrapper(val ktNamedFunction: KtNamedFunction) : MethodWrapp
         }
 
         return ktNamedFunction.valueParameters.map {
-            it.type()?.toString() ?: "NULL"
+            (it.resolveToDescriptorIfAny() as? CallableDescriptor)?.returnType?.toString() ?: "NULL"
         }
     }
 

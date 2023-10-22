@@ -23,7 +23,6 @@ class MethodInvocationFinder(
             return null
         }
         visited.add(methodWrapper)
-
         println("visit : ${methodWrapper.getContainingClassFqName()}.${methodWrapper.getMethodName()}")
 
         val psiFunctionWrappers = ReferenceSearchUtils.searchReferences(methodWrapper.getElement(), project)
@@ -32,43 +31,9 @@ class MethodInvocationFinder(
             }
 
         // 테스트 메서드 탐색
-        val testMethods = psiFunctionWrappers.filter {
-            it.isJunitTestMethod()
-        }.toSet()
-        val controllerTestMethods = methodWrapper.let {
-            val classFqName = it.getContainingClassFqName()
-            if (classFqName.contains("Controller")) {
-                val psiFacade = JavaPsiFacade.getInstance(project)
-                val targetControllerTestClassName = "${classFqName}Test"
-                val javaControllerTestClass = psiFacade.findClass(
-                    targetControllerTestClassName,
-                    project.projectScope()
-                )
-
-                val target: List<MethodWrapper> = javaControllerTestClass?.methods
-                    ?.filter { method ->
-                        method.name.contains(it.getMethodName())
-                    }
-                    ?.filter { method ->
-                        method !is KtLightMethod
-                    }
-                    ?.map { method -> method.toWrapper() } ?: listOf()
-                val target2: List<MethodWrapper> = KotlinFullClassNameIndex.get(targetControllerTestClassName, project, project.projectScope())
-                    .firstOrNull()
-                    ?.declarations
-                    ?.filterIsInstance<KtNamedFunction>()
-                    ?.filter {  function ->
-                        function.name?.contains(it.getMethodName()) ?: false
-                    }
-                    ?.map { function ->
-                        function.toWrapper()
-                    } ?: listOf()
-
-                return@let (target + target2)
-            }
-
-            listOf()
-        }
+        val testMethods: Set<MethodWrapper>  = psiFunctionWrappers.filter { it.isJunitTestMethod() }.toSet()
+        // 컨트롤러 테스트 메서드 탐색, 컨트롤러 메서드는 보통 직접 대상 메서드를 호출 하지 않고 MockMvc 를 쓰기 때문에 클래스 이름으로부터 간접적으로 테스트 메서드를 유추한다.
+        val controllerTestMethods: Set<MethodWrapper>  = getControllerTestMethods(methodWrapper)
 
         // 1. 기준 메서드에 대한 노드
         val newNode = ClassMethodNodeDescriptor(methodWrapper)
@@ -79,7 +44,7 @@ class MethodInvocationFinder(
             }
         )
 
-        // 3. 기준 메서드를 호출하는 테스트 메서드를 제외하고 나머지 메서드는 재귀 호출하여 나식 노드에 추가
+        // 3. 기준 메서드를 호출하는 테스트 메서드를 제외하고 나머지 메서드는 **재귀 호출**하여 나식 노드에 추가
         val childNodes = psiFunctionWrappers.filter { !it.isJunitTestMethod() }
             .mapNotNull {
                 buildInvocationTree(it)
@@ -87,6 +52,42 @@ class MethodInvocationFinder(
         newNode.addChildren(childNodes)
 
         return newNode
+    }
+
+    private fun getControllerTestMethods(methodWrapper: MethodWrapper): Set<MethodWrapper> {
+        val classFqName = methodWrapper.getContainingClassFqName()
+        if (!classFqName.contains("Controller")) {
+            return setOf()
+        }
+
+        val psiFacade = JavaPsiFacade.getInstance(project)
+        val targetControllerTestClassName = "${classFqName}Test"
+        val javaControllerTestClass = psiFacade.findClass(
+            targetControllerTestClassName,
+            project.projectScope()
+        )
+
+        val target: List<MethodWrapper> = javaControllerTestClass?.methods
+            ?.filter { psiMethod ->
+                psiMethod.name.contains(methodWrapper.getMethodName())
+            }
+            ?.filter { psiMethod ->
+                psiMethod !is KtLightMethod
+            }
+            ?.map { method -> method.toWrapper() } ?: listOf()
+        val target2: List<MethodWrapper> =
+            KotlinFullClassNameIndex[targetControllerTestClassName, project, project.projectScope()]
+                .firstOrNull()
+                ?.declarations
+                ?.filterIsInstance<KtNamedFunction>()
+                ?.filter { function ->
+                    function.name?.contains(methodWrapper.getMethodName()) ?: false
+                }
+                ?.map { function ->
+                    function.toWrapper()
+                } ?: listOf()
+
+        return (target + target2).toSet()
     }
 }
 

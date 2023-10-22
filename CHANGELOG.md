@@ -3,5 +3,5 @@
 # test-runner Changelog
 
 ## [Unreleased]
-### Added
-- Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
+
+[Unreleased]: https://github.com/wonjong-yoo/test-runner/commits
