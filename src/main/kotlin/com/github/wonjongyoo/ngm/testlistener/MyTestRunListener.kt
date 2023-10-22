@@ -7,6 +7,7 @@ import com.github.wonjongyoo.ngm.utils.ToolWindowUtils
 import com.github.wonjongyoo.ngm.window.TreeModelHolder
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.testframework.TestStatusListener
+import com.intellij.execution.testframework.sm.runner.SMTestProxy.SMRootTestProxy
 import com.intellij.openapi.project.Project
 import javax.swing.tree.DefaultMutableTreeNode
 
@@ -20,7 +21,9 @@ class MyTestRunListener : TestStatusListener() {
     override fun testSuiteFinished(root: AbstractTestProxy?, project: Project?) {
 
         println("finished")
-        if (root == null) {
+        if (root == null
+            || (root is SMRootTestProxy
+                && root.testConsoleProperties?.configuration?.name?.contains("Run all affected tests") == false)) {
             return
         }
 
