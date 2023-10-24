@@ -5,7 +5,7 @@ import com.intellij.openapi.wm.ToolWindowManager
 
 class ToolWindowUtils {
     companion object {
-        val ngmTestRunnerToolWindowId = "NGM TestRunner"
+        val ngmTestRunnerToolWindowId = "NgmTestRunner"
         fun activateNgmTestRunnerToolWindow(project: Project) {
             val toolWindowManager = ToolWindowManager.getInstance(project)
 
@@ -16,7 +16,6 @@ class ToolWindowUtils {
             }
 
             ngmTestRunnerToolWindow.activate(null)
-
         }
     }
 }

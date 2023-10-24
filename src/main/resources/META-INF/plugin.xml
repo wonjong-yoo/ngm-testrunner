@@ -20,7 +20,7 @@
         </codeInsight.lineMarkerProvider>
         <toolWindow
                 factoryClass="com.github.wonjongyoo.ngm.window.MyToolWindowFactory"
-                id="NGM TestRunner"
+                id="NgmTestRunner"
                 anchor="right"
         />
         <projectService serviceImplementation="com.github.wonjongyoo.ngm.window.TreeModelHolder"/>
@@ -41,6 +41,22 @@
                     text="Run All Affected Tests Based on Git Local Changes"
                     description="Enable auto expression converter">
             </action>
+        </group>
+        <group
+                id="NgmTestRunner.Actions">
+            <action id="ExpandAllAction"
+                    class="com.github.wonjongyoo.ngm.window.NgmTestRunnerToolWindowActions$ExpandAllAction"
+                    text="Expand All"
+                    description="Expand all"
+                    icon="AllIcons.Actions.Expandall"
+                    use-shortcut-of="ExpandAll"/>
+            <action id="CollapseAllAction"
+                    class="com.github.wonjongyoo.ngm.window.NgmTestRunnerToolWindowActions$CollapseAllAction"
+                    text="Collapse All"
+                    description="Collapse all"
+                    icon="AllIcons.Actions.Collapseall"
+                    use-shortcut-of="CollapseAll"
+            />
         </group>
     </actions>
 </idea-plugin>

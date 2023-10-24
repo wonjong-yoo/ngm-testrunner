@@ -1,13 +1,18 @@
 package com.github.wonjongyoo.ngm.window
 
+import com.github.wonjongyoo.ngm.model.NgmTestRunnerDataKeys
 import com.github.wonjongyoo.ngm.node.BaseNodeDescriptor
 import com.github.wonjongyoo.ngm.node.visitor.FindingTestMethodVisitor
 import com.github.wonjongyoo.ngm.testrunner.JunitTestRunner
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionToolbar
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.psi.PsiElement
 import com.intellij.ui.components.JBScrollPane
@@ -18,7 +23,6 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JComponent
 import javax.swing.JMenuItem
-import javax.swing.JPanel
 import javax.swing.JPopupMenu
 import javax.swing.SwingUtilities
 import javax.swing.tree.DefaultMutableTreeNode
@@ -26,8 +30,8 @@ import javax.swing.tree.DefaultTreeModel
 
 class MyToolWindow(
     toolWindow: ToolWindow
-) {
-    val mainPanel: JPanel
+) : SimpleToolWindowPanel(true, true) {
+    // val mainPanel: JPanel
     val tree: SimpleTree
 
     init {
@@ -63,8 +67,16 @@ class MyToolWindow(
             }
         })
 
-        mainPanel = JPanel(BorderLayout())
-        mainPanel.add(JBScrollPane(tree), BorderLayout.CENTER)
+        // mainPanel = JPanel(BorderLayout())
+        this.add(JBScrollPane(tree), BorderLayout.CENTER)
+
+        val actionManager = ActionManager.getInstance()
+        val actionGroup: ActionGroup = actionManager.getAction("NgmTestRunner.Actions") as ActionGroup
+        val toolbar: ActionToolbar = actionManager.createActionToolbar("MyToolWindowToolbar", actionGroup, true)
+
+        toolbar.targetComponent = this
+        // mainPanel.add(toolbar.component, BorderLayout.NORTH)
+        this.add(toolbar.component, BorderLayout.NORTH)
     }
 
     private fun navigateToPsiElement(project: Project, psiElement: PsiElement) {
@@ -115,5 +127,11 @@ class MyToolWindow(
 
         popupMenu.add(testRunAction)
         popupMenu.show(component, x, y)
+    }
+
+    override fun getData(dataId: String): Any? {
+        if (NgmTestRunnerDataKeys.TEST_METHOD_TREE_MODEL.`is`(dataId)) return tree
+
+        return super.getData(dataId)
     }
 }

@@ -29,9 +29,7 @@ class MyToolWindowFactory : ToolWindowFactory {
         // toolWindow.component.parent.add(tree)
 
         val myToolWindow = MyToolWindow(toolWindow)
-        val content = toolWindow.contentManager.factory.createContent(myToolWindow.mainPanel, "All Affected Methods And Tests", false)
+        val content = toolWindow.contentManager.factory.createContent(myToolWindow, "All Affected Methods And Tests", false)
         toolWindow.contentManager.addContent(content)
     }
-
-
 }
