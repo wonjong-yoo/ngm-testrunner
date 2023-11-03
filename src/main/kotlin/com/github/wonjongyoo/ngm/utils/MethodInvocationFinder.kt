@@ -25,7 +25,7 @@ class MethodInvocationFinder(
         visited.add(methodWrapper)
         println("visit : ${methodWrapper.getContainingClassFqName()}.${methodWrapper.getMethodName()}")
 
-        val psiFunctionWrappers = ReferenceSearchUtils.searchReferences(methodWrapper.getElement(), project)
+        val psiFunctionWrappers = ReferenceSearchUtils.searchReferences(methodWrapper, project)
             .mapNotNull {
                 it.searchPsiFunctionElement()
             }

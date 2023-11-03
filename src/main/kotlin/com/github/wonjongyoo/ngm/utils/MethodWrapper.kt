@@ -1,5 +1,6 @@
 package com.github.wonjongyoo.ngm.utils
 
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiJavaCodeReferenceElement
 import com.intellij.psi.PsiMethod
@@ -11,7 +12,9 @@ import org.jetbrains.kotlin.idea.base.psi.kotlinFqName
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptorIfAny
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
+import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -28,6 +31,8 @@ interface MethodWrapper {
     fun getMethodName(): String
 
     fun getArgumentTypes(): List<String>
+
+    fun getInterfaceMethod(): PsiElement?
 }
 
 class KtNamedFunctionWrapper(val ktNamedFunction: KtNamedFunction) : MethodWrapper {
@@ -90,6 +95,25 @@ class KtNamedFunctionWrapper(val ktNamedFunction: KtNamedFunction) : MethodWrapp
         }
     }
 
+    override fun getInterfaceMethod(): PsiElement? {
+        val ktClass = PsiTreeUtil.getParentOfType(this.ktNamedFunction, KtClass::class.java) ?: return null
+        val superTypes = ktClass.superTypeListEntries
+        return superTypes
+            .mapNotNull {
+                PsiTreeUtil.findChildOfType(it, KtNameReferenceExpression::class.java)
+            }
+            .mapNotNull {
+                it.mainReference.resolve()
+            }
+            .flatMap {
+                PsiTreeUtil.findChildrenOfType(it, KtNamedFunction::class.java)
+            }
+            .firstOrNull {
+                it.name == ktNamedFunction.name
+                    && it.valueParameters.size == ktNamedFunction.valueParameters.size
+            }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -148,6 +172,20 @@ class PsiMethodWrapper(val psiMethod: PsiMethod) : MethodWrapper {
         return psiMethod.parameters.map {
             (it as PsiParameterImpl).typeElement?.text ?: "NULL"
         }
+    }
+
+    override fun getInterfaceMethod(): PsiElement? {
+        val parent = psiMethod.parent
+        if (parent !is PsiClass || parent.implementsList?.referenceElements?.isEmpty() == true) {
+            return null
+        }
+
+        val interfaceReferences = parent.implementsList!!.referenceElements
+
+        return interfaceReferences.mapNotNull { it.resolve() }
+            .filterIsInstance<PsiClass>()
+            .flatMap { it.allMethods.toList() }
+            .firstOrNull { it.name == psiMethod.name && it.typeParameters.size == psiMethod.typeParameters.size } ?: return null
     }
 
     override fun equals(other: Any?): Boolean {
