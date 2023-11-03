@@ -12,6 +12,12 @@ import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder
+import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiIdentifier
 import com.intellij.psi.PsiMethod
@@ -42,28 +48,56 @@ class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
             }
     }
 
-    private fun createIconNavigationHandler(element: PsiElement): GutterIconNavigationHandler<PsiElement> = GutterIconNavigationHandler<PsiElement> { _, elt ->
-        val elementAtCurrentOffset = element.parent as PsiMethod
+    private fun createIconNavigationHandler(methodElement: PsiElement): GutterIconNavigationHandler<PsiElement> = GutterIconNavigationHandler<PsiElement> { e, elt ->
+        ActionManager.getInstance().createActionPopupMenu("TEST", createActionGroup(methodElement, elt)).component.show(e.component, e.x, e.y)
+    }
+
+    private fun createActionGroup(methodElement: PsiElement, eventElement: PsiElement): ActionGroup {
+        val defaultActionGroup = DefaultActionGroup("Test Action Group", true)
+
+        val action1 = object : AnAction({ "Run all affected tests in this method" }, AllIcons.Actions.RunAll) {
+            override fun actionPerformed(e: AnActionEvent) {
+                runTests(methodElement, eventElement, renderTree(methodElement, eventElement))
+            }
+        }
+
+        val action2 = object : AnAction({ "Show invocation tree only" }, AllIcons.Actions.ShowAsTree) {
+            override fun actionPerformed(e: AnActionEvent) {
+                renderTree(methodElement, eventElement)
+            }
+        }
+
+        defaultActionGroup.addAction(action1)
+        defaultActionGroup.addAction(action2)
+
+        return defaultActionGroup
+    }
+
+    private fun renderTree(methodElement: PsiElement, eventElement: PsiElement): Set<MethodWrapper> {
+        val elementAtCurrentOffset = methodElement.parent as PsiMethod
 
         val methodWrapper: MethodWrapper = elementAtCurrentOffset.toWrapper()
 
-        val finder = MethodInvocationFinder(elt.project)
+        val finder = MethodInvocationFinder(eventElement.project)
         val rootBaseNode = finder.buildInvocationTree(methodWrapper)
         if (rootBaseNode == null) {
             println("invocation tree is null")
-            return@GutterIconNavigationHandler
+            return setOf()
         }
 
         val visitor = FindingTestMethodVisitor()
         rootBaseNode.accept(visitor)
 
-        val treeModelHolder = elt.project.getService(TreeModelHolder::class.java)
+        val treeModelHolder = eventElement.project.getService(TreeModelHolder::class.java)
         treeModelHolder.treeModel.setRoot(rootBaseNode.toTreeNode())
         treeModelHolder.treeModel.reload()
 
-        JunitTestRunner.runTestMethods(elt.project, visitor.getTestMethodWrappers(), "Run all affected tests in ${element.text}")
-
-        ToolWindowUtils.activateNgmTestRunnerToolWindow(element.project)
+        return visitor.getTestMethodWrappers()
     }
 
+    private fun runTests(methodElement: PsiElement, eventElement: PsiElement, testMethodWrappers: Set<MethodWrapper>) {
+        JunitTestRunner.runTestMethods(eventElement.project, testMethodWrappers, "Run all affected tests in ${methodElement.text}")
+
+        ToolWindowUtils.activateNgmTestRunnerToolWindow(methodElement.project)
+    }
 }
