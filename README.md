@@ -22,7 +22,7 @@
 Testing is essential to ensure the stability of changed code. However, running all tests can often be inefficient. If you're wondering, "Which methods are affected by the code I modified?", give the NGM TestRunner a try!
 (The NGM means Ninja-Guru-Magician)
 <h2>✅ Key Features:</h2>
-⚠️ This plugin only support java source code and kotlin test code.
+⚠️ This plugin only support Junit test framework
 
 **1. Method-level Exploration**: When you select a specific method in the code, the tool automatically explores all methods affected by it and immediately runs the associated tests.
 
