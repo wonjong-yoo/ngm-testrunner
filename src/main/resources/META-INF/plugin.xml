@@ -22,6 +22,7 @@
                 factoryClass="com.github.wonjongyoo.ngm.window.MyToolWindowFactory"
                 id="NgmTestRunner"
                 anchor="right"
+                icon="com.github.wonjongyoo.ngm.icons.NgmTestRunnerIcons.toolWindowIcon"
         />
         <projectService serviceImplementation="com.github.wonjongyoo.ngm.window.TreeModelHolder"/>
         <testStatusListener implementation="com.github.wonjongyoo.ngm.testlistener.MyTestRunListener"/>
