@@ -19,29 +19,29 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiIdentifier
-import com.intellij.psi.PsiMethod
+import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.psiUtil.containingClass
 
-class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
+class KotlinMethodLineMarkerProvider: RelatedItemLineMarkerProvider() {
     override fun collectNavigationMarkers(
         elements: MutableList<out PsiElement>,
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>,
         forNavigation: Boolean
     ) {
         elements
-            .filter { it is PsiIdentifier && it.parent is PsiMethod }
+            .filterIsInstance<KtNamedFunction>()
             .filterNot {
-                (it.parent as PsiMethod).modifierList.annotations.any { annotation ->
-                    annotation.qualifiedName?.contains("org.junit") ?: false
+                it.annotationEntries.any { annotation ->
+                    annotation.shortName.toString().contains("Test")
                 }
             }
             .forEach { element ->
                 val navigationHandler = createIconNavigationHandler(element)
 
                 val marker = NavigationGutterIconBuilder.create(NgmTestRunnerIcons.icon)
-                    .setTooltipText("Run all affected tests by ${(element.parent as PsiMethod).containingClass?.name}#${element.text}")
+                    .setTooltipText("Run all affected tests by ${(element).containingClass()?.name}#${element.name}")
                     .setTarget(element)
-                    .setPopupTitle("Run all affected tests by ${(element.parent as PsiMethod).containingClass?.name}#${element.text}")
+                    .setPopupTitle("Run all affected tests by ${(element).containingClass()?.name}#${element.name}")
                     .createLineMarkerInfo(element, navigationHandler)
 
                 result.add(marker)
@@ -77,7 +77,7 @@ class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
     }
 
     private fun makeTestTreeAndRender(methodElement: PsiElement, eventElement: PsiElement): Set<MethodWrapper> {
-        val elementAtCurrentOffset = methodElement.parent as PsiMethod
+        val elementAtCurrentOffset = methodElement as KtNamedFunction
 
         val methodWrapper: MethodWrapper = elementAtCurrentOffset.toWrapper()
 

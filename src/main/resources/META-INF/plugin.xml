@@ -16,8 +16,11 @@
             <language>JAVA</language>
             <className>com.github.wonjongyoo.ngm.intention.CaretBasedTestRunnerIntention</className>
         </intentionAction>
-        <codeInsight.lineMarkerProvider implementationClass="com.github.wonjongyoo.ngm.marker.MethodJunitTestRunnerLineMarkerProvider"
+        <codeInsight.lineMarkerProvider implementationClass="com.github.wonjongyoo.ngm.marker.JavaMethodLineMarkerProvider"
                                         language="JAVA">
+        </codeInsight.lineMarkerProvider>
+        <codeInsight.lineMarkerProvider implementationClass="com.github.wonjongyoo.ngm.marker.KotlinMethodLineMarkerProvider"
+                                        language="kotlin">
         </codeInsight.lineMarkerProvider>
         <toolWindow
                 factoryClass="com.github.wonjongyoo.ngm.window.MyToolWindowFactory"
