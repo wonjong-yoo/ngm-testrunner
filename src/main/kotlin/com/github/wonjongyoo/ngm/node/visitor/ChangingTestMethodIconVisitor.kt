@@ -2,7 +2,7 @@ package com.github.wonjongyoo.ngm.node.visitor
 
 import com.github.wonjongyoo.ngm.node.BaseNodeDescriptor
 import com.github.wonjongyoo.ngm.node.TestMethodNodeDescriptor
-import com.github.wonjongyoo.ngm.utils.TestRunResult
+import com.github.wonjongyoo.ngm.utils.TestResultParseUtils.TestRunResult
 
 class ChangingTestMethodIconVisitor(
     private val testRunResults: List<TestRunResult>

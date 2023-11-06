@@ -90,8 +90,3 @@ class MethodInvocationFinder(
         return (target + target2).toSet()
     }
 }
-
-data class TestRunResult(
-    val testName: String,
-    val success: Boolean
-)

@@ -68,8 +68,7 @@ class CaretBasedTestRunnerIntention: IntentionAction {
 
     private fun getElementAtCurrentCaretOffset(editor: Editor, file: PsiFile): PsiElement? {
         val currentCaretOffset = editor.caretModel.currentCaret.offset
-        val nowElement = file.findElementAt(currentCaretOffset)
 
-        return nowElement
+        return file.findElementAt(currentCaretOffset)
     }
 }

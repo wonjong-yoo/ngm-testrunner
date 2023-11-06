@@ -64,6 +64,12 @@
                     icon="AllIcons.Actions.RunAll"
                     use-shortcut-of="Rerun"
             />
+            <action id="RerunAllFailedTestAction"
+                    class="com.github.wonjongyoo.ngm.window.NgmTestRunnerToolWindowActions$RerunAllFailedTestAction"
+                    text="Rerun Failed Tests"
+                    description="Rerun failed tests"
+                    icon="AllIcons.RunConfigurations.RerunFailedTests"
+            />
         </group>
     </actions>
 </idea-plugin>

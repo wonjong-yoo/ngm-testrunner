@@ -3,15 +3,17 @@ package com.github.wonjongyoo.ngm.testlistener
 import com.github.wonjongyoo.ngm.model.TestRunnerDataHolder
 import com.github.wonjongyoo.ngm.node.BaseNodeDescriptor
 import com.github.wonjongyoo.ngm.node.visitor.ChangingTestMethodIconVisitor
-import com.github.wonjongyoo.ngm.utils.TestRunResult
+import com.github.wonjongyoo.ngm.utils.TestResultParseUtils
 import com.github.wonjongyoo.ngm.utils.ToolWindowUtils
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.testframework.TestStatusListener
 import com.intellij.execution.testframework.sm.runner.SMTestProxy.SMRootTestProxy
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import javax.swing.tree.DefaultMutableTreeNode
 
 class MyTestRunListener : TestStatusListener() {
+    private val LOG: Logger = Logger.getInstance(MyTestRunListener::class.java)
 
     override fun testSuiteFinished(root: AbstractTestProxy?) {
         // Nothing..
@@ -19,23 +21,14 @@ class MyTestRunListener : TestStatusListener() {
 
     // 테스트 실행이 종료되었을 때 이 callback 호출
     override fun testSuiteFinished(root: AbstractTestProxy?, project: Project?) {
-
-        println("finished")
+        LOG.info("test finished")
         if (root == null
             || (root is SMRootTestProxy
                 && root.testConsoleProperties?.configuration?.name?.contains("(run by NGM)") == false)) {
             return
         }
 
-        val testRunResults = root.allTests
-            .mapNotNull {
-                val locationUrl = it.locationUrl ?: ""
-                val regex = """java:test://(.+)/(.+)""".toRegex()
-                val matchResult = regex.find(locationUrl) ?: return@mapNotNull null
-
-                val (className, methodName) = matchResult.destructured
-                TestRunResult("${className.split(".").last()}.$methodName", it.isPassed)
-            }.toList()
+        val testRunResults = TestResultParseUtils.parseTestResult(root as SMRootTestProxy)
 
         val testRunnerDataHolder = project?.getService(TestRunnerDataHolder::class.java) ?: return
         val defaultMutableTreeNode = testRunnerDataHolder.treeModel.root as DefaultMutableTreeNode
