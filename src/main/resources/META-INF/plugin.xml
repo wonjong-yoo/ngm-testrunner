@@ -13,6 +13,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <intentionAction>
+            <language>JAVA</language>
             <className>com.github.wonjongyoo.ngm.intention.CaretBasedTestRunnerIntention</className>
         </intentionAction>
         <codeInsight.lineMarkerProvider implementationClass="com.github.wonjongyoo.ngm.marker.MethodJunitTestRunnerLineMarkerProvider"

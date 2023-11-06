@@ -2,11 +2,14 @@ package com.github.wonjongyoo.ngm.window
 
 import com.github.wonjongyoo.ngm.model.NgmTestRunnerDataKeys
 import com.github.wonjongyoo.ngm.model.TestRunnerDataHolder
+import com.github.wonjongyoo.ngm.node.BaseNodeDescriptor
+import com.github.wonjongyoo.ngm.node.visitor.FindingFailedTestMethodVisitor
 import com.github.wonjongyoo.ngm.testrunner.JunitTestRunner
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.util.ui.tree.TreeUtil
 import javax.swing.JTree
+import javax.swing.tree.DefaultMutableTreeNode
 
 class NgmTestRunnerToolWindowActions {
     companion object {
@@ -55,7 +58,13 @@ class NgmTestRunnerToolWindowActions {
                 println("tree is null")
                 return
             }
+            val baseNodeDescription = (tree.model.root as DefaultMutableTreeNode).userObject as BaseNodeDescriptor
+            val visitor = FindingFailedTestMethodVisitor()
 
+            baseNodeDescription.accept(visitor)
+            val failedTestMethods = visitor.failedTestMethods.map { it.methodWrapper }.toSet()
+
+            JunitTestRunner.runTestMethods(e.project!!, failedTestMethods, "Rerun failed tests")
         }
     }
 }
