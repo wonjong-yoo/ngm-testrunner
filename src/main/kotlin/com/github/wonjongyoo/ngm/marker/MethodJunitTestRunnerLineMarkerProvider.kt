@@ -1,13 +1,13 @@
 package com.github.wonjongyoo.ngm.marker
 
 import com.github.wonjongyoo.ngm.icons.NgmTestRunnerIcons
+import com.github.wonjongyoo.ngm.model.TestRunnerDataHolder
 import com.github.wonjongyoo.ngm.node.visitor.FindingTestMethodVisitor
 import com.github.wonjongyoo.ngm.testrunner.JunitTestRunner
 import com.github.wonjongyoo.ngm.utils.MethodInvocationFinder
 import com.github.wonjongyoo.ngm.utils.MethodWrapper
 import com.github.wonjongyoo.ngm.utils.ToolWindowUtils
 import com.github.wonjongyoo.ngm.utils.toWrapper
-import com.github.wonjongyoo.ngm.window.TreeModelHolder
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider
@@ -57,13 +57,16 @@ class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
 
         val action1 = object : AnAction({ "Run all affected tests in this method" }, AllIcons.Actions.RunAll) {
             override fun actionPerformed(e: AnActionEvent) {
-                runTests(methodElement, eventElement, renderTree(methodElement, eventElement))
+                val project = e.project!!
+                JunitTestRunner.runTestMethods(project, makeTestTreeAndRender(methodElement, eventElement), "Run all affected tests")
+
+                ToolWindowUtils.activateNgmTestRunnerToolWindow(project)
             }
         }
 
         val action2 = object : AnAction({ "Show invocation tree only" }, AllIcons.Actions.ShowAsTree) {
             override fun actionPerformed(e: AnActionEvent) {
-                renderTree(methodElement, eventElement)
+                makeTestTreeAndRender(methodElement, eventElement)
             }
         }
 
@@ -73,7 +76,7 @@ class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
         return defaultActionGroup
     }
 
-    private fun renderTree(methodElement: PsiElement, eventElement: PsiElement): Set<MethodWrapper> {
+    private fun makeTestTreeAndRender(methodElement: PsiElement, eventElement: PsiElement): Set<MethodWrapper> {
         val elementAtCurrentOffset = methodElement.parent as PsiMethod
 
         val methodWrapper: MethodWrapper = elementAtCurrentOffset.toWrapper()
@@ -88,16 +91,13 @@ class MethodJunitTestRunnerLineMarkerProvider: RelatedItemLineMarkerProvider() {
         val visitor = FindingTestMethodVisitor()
         rootBaseNode.accept(visitor)
 
-        val treeModelHolder = eventElement.project.getService(TreeModelHolder::class.java)
-        treeModelHolder.treeModel.setRoot(rootBaseNode.toTreeNode())
-        treeModelHolder.treeModel.reload()
+        val testRunnerDataHolder = eventElement.project.getService(TestRunnerDataHolder::class.java)
+        testRunnerDataHolder.treeModel.setRoot(rootBaseNode.toTreeNode())
+        testRunnerDataHolder.treeModel.reload()
 
-        return visitor.getTestMethodWrappers()
-    }
+        val testMethodWrappers = visitor.getTestMethodWrappers()
+        testRunnerDataHolder.testMethods = testMethodWrappers
 
-    private fun runTests(methodElement: PsiElement, eventElement: PsiElement, testMethodWrappers: Set<MethodWrapper>) {
-        JunitTestRunner.runTestMethods(eventElement.project, testMethodWrappers, "Run all affected tests in ${methodElement.text}")
-
-        ToolWindowUtils.activateNgmTestRunnerToolWindow(methodElement.project)
+        return testMethodWrappers
     }
 }

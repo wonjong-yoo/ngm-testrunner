@@ -1,6 +1,7 @@
 package com.github.wonjongyoo.ngm.window
 
 import com.github.wonjongyoo.ngm.model.NgmTestRunnerDataKeys
+import com.github.wonjongyoo.ngm.model.TestRunnerDataHolder
 import com.github.wonjongyoo.ngm.node.BaseNodeDescriptor
 import com.github.wonjongyoo.ngm.node.visitor.FindingTestMethodVisitor
 import com.github.wonjongyoo.ngm.testrunner.JunitTestRunner
@@ -36,10 +37,10 @@ class MyToolWindow(
 
     init {
         val project = toolWindow.project
-        val treeModelHolder = project.getService(TreeModelHolder::class.java)
-        treeModelHolder.treeModel = DefaultTreeModel(DefaultMutableTreeNode())
+        val testRunnerDataHolder = project.getService(TestRunnerDataHolder::class.java)
+        testRunnerDataHolder.treeModel = DefaultTreeModel(DefaultMutableTreeNode())
 
-        tree = MySimpleTree(treeModelHolder.treeModel)
+        tree = MySimpleTree(testRunnerDataHolder.treeModel)
         tree.cellRenderer = CustomTreeCellRenderer()
         tree.addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent) {
@@ -107,7 +108,7 @@ class MyToolWindow(
 
             val visitor = FindingTestMethodVisitor()
 
-            val targetSet = selectedNodes.map { baseNode ->
+            val testTargetMethods = selectedNodes.map { baseNode ->
                 (baseNode as BaseNodeDescriptor).accept(visitor)
                 visitor.getTestMethodWrappers()
             }
@@ -116,13 +117,9 @@ class MyToolWindow(
 
             JunitTestRunner.runTestMethods(
                 project,
-                targetSet,
+                testTargetMethods,
                 "Run Tests"
             )
-            // val newName = JOptionPane.showInputDialog(component, "Enter new name:", node.name)
-            // if (newName != null && newName.isNotBlank()) {
-            //     renameNode(node, newName)
-            // }
         }
 
         popupMenu.add(testRunAction)

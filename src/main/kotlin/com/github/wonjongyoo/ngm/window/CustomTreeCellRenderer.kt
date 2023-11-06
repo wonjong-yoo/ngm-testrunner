@@ -52,22 +52,6 @@ class CustomTreeCellRenderer : NodeRenderer() {
                 }
 
             }
-
-            // val userObject = value.userObject
-            // when (userObject) {
-            //     is BaseNode -> {
-            //         titleLabel.text = userObject.name
-            //         titleLabel.icon = userObject.icon
-            //     }
-            //     is String -> {
-            //         titleLabel.text = "Root"
-            //         titleLabel.icon = AllIcons.Nodes.Folder
-            //     }
-            // }
         }
-
-        // return panel
     }
-
-
 }

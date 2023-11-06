@@ -24,7 +24,6 @@
                 anchor="right"
                 icon="com.github.wonjongyoo.ngm.icons.NgmTestRunnerIcons.toolWindowIcon"
         />
-        <projectService serviceImplementation="com.github.wonjongyoo.ngm.window.TreeModelHolder"/>
         <testStatusListener implementation="com.github.wonjongyoo.ngm.testlistener.MyTestRunListener"/>
     </extensions>
 
@@ -57,6 +56,13 @@
                     description="Collapse all"
                     icon="AllIcons.Actions.Collapseall"
                     use-shortcut-of="CollapseAll"
+            />
+            <action id="RerunAllTestAction"
+                    class="com.github.wonjongyoo.ngm.window.NgmTestRunnerToolWindowActions$RerunAllTestAction"
+                    text="Rerun All Tests"
+                    description="Rerun all tests"
+                    icon="AllIcons.Actions.RunAll"
+                    use-shortcut-of="Rerun"
             />
         </group>
     </actions>

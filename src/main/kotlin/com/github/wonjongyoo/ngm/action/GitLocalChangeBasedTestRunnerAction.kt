@@ -1,11 +1,11 @@
 package com.github.wonjongyoo.ngm.action
 
+import com.github.wonjongyoo.ngm.model.TestRunnerDataHolder
 import com.github.wonjongyoo.ngm.node.visitor.FindingTestMethodVisitor
 import com.github.wonjongyoo.ngm.testrunner.JunitTestRunner
 import com.github.wonjongyoo.ngm.utils.MethodInvocationFinder
 import com.github.wonjongyoo.ngm.utils.TextRangeBasedMethodVisitor
 import com.github.wonjongyoo.ngm.utils.ToolWindowUtils
-import com.github.wonjongyoo.ngm.window.TreeModelHolder
 import com.intellij.codeInsight.actions.VcsFacade
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -51,14 +51,14 @@ class GitLocalChangeBasedTestRunnerAction: AnAction() {
             }
             .toList()
 
-        val treeModelHolder = project.getService(TreeModelHolder::class.java)
+        val testRunnerDataHolder = project.getService(TestRunnerDataHolder::class.java)
 
         val rootNode = DefaultMutableTreeNode("Modified methods")
         for (treeNode in treeNodes) {
             rootNode.add(treeNode.toTreeNode())
         }
-        treeModelHolder.treeModel.setRoot(rootNode)
-        treeModelHolder.treeModel.reload()
+        testRunnerDataHolder.treeModel.setRoot(rootNode)
+        testRunnerDataHolder.treeModel.reload()
 
         val testMethodWrappers = treeNodes.map {
             val visitor = FindingTestMethodVisitor()
@@ -68,6 +68,7 @@ class GitLocalChangeBasedTestRunnerAction: AnAction() {
         }
             .flatten()
             .toSet()
+        testRunnerDataHolder.testMethods = testMethodWrappers
 
         JunitTestRunner.runTestMethods(project, testMethodWrappers, "Run all tests in locally changed files")
 

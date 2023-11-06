@@ -1,11 +1,11 @@
 package com.github.wonjongyoo.ngm.intention
 
+import com.github.wonjongyoo.ngm.model.TestRunnerDataHolder
 import com.github.wonjongyoo.ngm.node.BaseNodeDescriptor
 import com.github.wonjongyoo.ngm.utils.MethodInvocationFinder
 import com.github.wonjongyoo.ngm.utils.MethodWrapper
 import com.github.wonjongyoo.ngm.utils.ToolWindowUtils
 import com.github.wonjongyoo.ngm.utils.toWrapper
-import com.github.wonjongyoo.ngm.window.TreeModelHolder
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.editor.Editor
@@ -60,10 +60,10 @@ class CaretBasedTestRunnerIntention: IntentionAction {
     }
 
     private fun updateTree(project: Project, baseNodeDescriptor: BaseNodeDescriptor) {
-        val treeModelHolder = project.getService(TreeModelHolder::class.java)
+        val testRunnerDataHolder = project.getService(TestRunnerDataHolder::class.java)
 
-        treeModelHolder?.treeModel?.setRoot(baseNodeDescriptor.toTreeNode())
-        treeModelHolder?.treeModel?.reload()
+        testRunnerDataHolder?.treeModel?.setRoot(baseNodeDescriptor.toTreeNode())
+        testRunnerDataHolder?.treeModel?.reload()
     }
 
     private fun getElementAtCurrentCaretOffset(editor: Editor, file: PsiFile): PsiElement? {

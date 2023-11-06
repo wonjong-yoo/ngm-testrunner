@@ -36,9 +36,9 @@ class JunitTestRunner {
 
             val settings = testMethodsByModule.map { (module, target) ->
                 val newMessage = if (testMethodsByModule.size == 1) {
-                    junitRunMessage
+                    "$junitRunMessage (run by NGM)"
                 } else {
-                    "[${module?.name}] $junitRunMessage"
+                    "[${module?.name}] $junitRunMessage (run by NGM)"
                 }
 
                 val setting = runManager.createConfiguration(newMessage, JUnitConfigurationType::class.java)
